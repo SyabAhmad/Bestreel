@@ -19,6 +19,11 @@ bash setup.sh                                  # once
 
 Work happens in `build/<name>/` next to the script (voice is cached until the lines change).
 
+`./beatreel` means the `beatreel` file in this folder (the one holding this SKILL.md). When this is installed as a
+skill (for example `~/.claude/skills/beatreel`) and you are working in another project, call it by its full path,
+`~/.claude/skills/beatreel/beatreel make videos/x/x.json`, and keep the scripts and videos in the user's project.
+Run `bash <this folder>/setup.sh` once if `.venv` doesn't exist here yet. Step-by-step workflow: `AGENTS.md`.
+
 ## Workflow
 
 1. Write the beats. Keep each line literal: the scene must **show** what the line **says**. If you cannot name the
