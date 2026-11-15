@@ -10,8 +10,8 @@ script.json  →  voice (Kokoro, offline)  →  word timings  →  HTML + GSAP p
 
 It runs entirely on your machine. No accounts, no API keys, no cloud voice.
 
-Sample renders: [docs/coffee.mp4](docs/coffee.mp4) (light look), [docs/cold-battery.mp4](docs/cold-battery.mp4)
-(dark look), [docs/tour.mp4](docs/tour.mp4) (a catalogue of the scenes).
+Sample renders: [docs/coffee.mp4](docs/coffee.mp4), [docs/cold-battery.mp4](docs/cold-battery.mp4) and
+[docs/tour.mp4](docs/tour.mp4) (a catalogue of the scenes).
 
 ## What it has
 
@@ -19,15 +19,19 @@ Sample renders: [docs/coffee.mp4](docs/coffee.mp4) (light look), [docs/cold-batt
   checker that lists every word it had to guess (`./beatreel say "..."`), so names, acronyms and prices
   come out right.
 - **Word-synced captions**: each word pops in as it is spoken, key words (`_like this_`) get a highlight.
-- **One idea per beat**: about 60 animated scenes (cards, numbers that roll, terminals that type, checklists that
+- **One idea per beat, cut into shots**: about 60 animated scenes (cards, numbers that roll, terminals that type, checklists that
   tick, code that scrolls, charts, gauges, a world map, dominoes, status boards, file conversions, star bursts,
-  follow cards ...). Every piece lands on the word that names it (`"at": "word:checklist"`).
-- **Kai**, an original presenter drawn in code: lip movement on every word, blinks, 25+ poses and moods
-  (`docs/kai-poses.jpg`). Recolour him, swap in your own character, or leave him out.
-- **Three looks**: `studio` (light, default), `night` (dark), `paper` (plain base). All colours are CSS variables
-  you can change.
-- **Optional extras**: a quiet code-made music bed (`"music": {"style": "soft"}`), sound effects through
-  [earshot](https://github.com/Leonxlnx/earshot) (`"sfx": true`), your own intro sound, pre-rendered clips with
+  follow cards ...). Every piece lands on the word that names it (`"at": "word:checklist"`), entrances vary
+  from shot to shot, impacts shake the frame and throw sparks, and every scene is scaled to fit the frame.
+- **Kai**, an original presenter drawn in code, on screen the whole video: lip movement on every word, blinks,
+  25+ poses and moods (`docs/kai-poses.jpg`), and he moves between left, centre and right along the bottom.
+  Recolour him, swap in your own character, or leave him out.
+- **Sound effects built in**: 12 short code-made sounds (pops, ticks, a whoosh, an impact, typing, chimes) in
+  `engine/sfx/`, placed on every entrance, tick and impact. `"sfx": false` turns them off.
+- **Three looks**: `studio` (plain white, default), `night` (dark), `paper` (plain base). All colours are CSS
+  variables you can change.
+- **Optional extras**: a quiet code-made music bed (`"music": {"style": "soft"}`), any of earshot's 250+
+  sounds through [earshot](https://github.com/Leonxlnx/earshot) (`"sfx_id"` on a scene), your own intro sound, pre-rendered clips with
   transparency (for example 3D shots).
 - **A frames sheet** before the full render (`board`), so you can check every beat in one picture.
 
@@ -88,8 +92,8 @@ the next, each starting on its `at`. The full reference (every scene type and ke
 
 | | |
 |---|---|
-| `examples/coffee/` | 21 s, light `studio` look, Kai on every beat |
-| `examples/cold-battery/` | 23 s, dark `night` look, a different voice, music bed, scenes without the presenter |
+| `examples/coffee/` | 21 s, two shots per beat, Kai on every frame, sound effects |
+| `examples/cold-battery/` | 23 s, a different voice (`am_michael`) and the music bed |
 | `examples/tour/` | 34 s, no presenter, one beat per scene type: a quick catalogue of what the engine draws |
 
 ## Voice
@@ -112,7 +116,8 @@ After each run, `build/<name>/pronounce.txt` lists every word the voice guessed.
 
 ## Presenter
 
-- Kai (default): `"pose"` per beat, `"avatar_colors": {"shirt": "#2d4f8a", "hair": "#5a3a22", ...}` to recolour,
+- Kai (default): `"pose"` per beat, `"kai": "left" | "center" | "right"` per beat (otherwise he moves on his
+  own; `"presenter_move": false` keeps him centred), `"avatar_colors": {"shirt": "#2d4f8a", "hair": "#5a3a22", ...}` to recolour,
   `"presenter": false` on a beat to hide him for it, `"character": "none"` to leave him out entirely.
 - Your own character: `"character": "path/to/folder"` with a `character.json` and one transparent video holding a
   short clip per pose:

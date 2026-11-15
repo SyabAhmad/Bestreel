@@ -5,6 +5,15 @@ import numpy as np, soundfile as sf, pyloudnorm as pyln
 from scipy.signal import resample_poly, butter, sosfilt
 
 SR = 48000
+BANK = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "engine", "sfx")
+_bank = None
+def bank():
+    """The sound effects shipped in engine/sfx (rendered from earshot's code-made bank, MIT): id -> file + peak."""
+    global _bank
+    if _bank is None:
+        f = os.path.join(BANK, "index.json"); _bank = json.load(open(f)) if os.path.exists(f) else {}
+    return _bank
+
 def earshot():
     for p in [os.environ.get("BEATREEL_EARSHOT", ""), shutil.which("earshot") or "", os.path.expanduser("~/.cache/beatreel/earshot/.venv/bin/earshot"),
               os.path.expanduser("~/earshot/.venv/bin/earshot")]:
@@ -39,15 +48,24 @@ def mix(work, cues, dur, cfg):
     n = int(dur * SR); m = pyln.Meter(SR)
     vo, _ = sf.read(os.path.join(work, "vo.wav")); vo = np.pad(vo, (0, max(0, n - len(vo))))[:n]
     mus = beat(n, cfg.get("music", {}))
-    sfx = np.zeros(n + SR); ear = earshot(); os.makedirs(os.path.join(work, "sfx"), exist_ok=True); used = []
-    if not ear: print("  ! earshot not found: rendering without sound effects (bash setup.sh --sfx installs it)")
+    sfx = np.zeros(n + SR); ear = None; os.makedirs(os.path.join(work, "sfx"), exist_ok=True); used = []
     for k, cue in enumerate(cues):
         at, sid, g = cue[:3]; opt = cue[3] if len(cue) > 3 else {}   # opt: {"dur": exact length, "align": "start"}
         if sid.startswith("file:"):         # a local sound (the intro): starts on its cue
             a, sr = sf.read(sid[5:]); a = a.mean(1) if a.ndim > 1 else a
             if sr != SR: a = resample_poly(a, SR, sr)
             i0 = int(at * SR); sfx[i0:i0 + len(a)] += a[:n + SR - i0] * 10 ** (g / 20); used.append(sid); continue
-        if not ear: continue
+        b = bank().get(sid.replace("/", "_"))
+        if b and not opt.get("dur"):   # a shipped sound: no earshot needed
+            a, sr = sf.read(os.path.join(BANK, b["file"])); a = a.mean(1) if a.ndim > 1 else a
+            pk = 0.0 if opt.get("align") == "start" else b["peak"]
+            if sr != SR: a = resample_poly(a, SR, sr)
+            i0 = int((at - pk) * SR)
+            if i0 < 0: a = a[-i0:]; i0 = 0
+            if i0 >= n: continue
+            sfx[i0:i0 + len(a)] += a[:n + SR - i0] * 10 ** (g / 20); used.append(sid); continue
+        if ear is None: ear = earshot() or ""
+        if not ear: print(f"  ! sfx {sid}: not shipped in engine/sfx and earshot is not installed (bash setup.sh --sfx)"); continue
         out = os.path.join(work, "sfx", f"{k:03d}.wav")
         cmd = [ear, "sfx", "render", sid, "-o", out, "--json"] + (["--dur", f'{opt["dur"]:.3f}'] if opt.get("dur") else [])
         r = subprocess.run(cmd, capture_output=True, text=True)

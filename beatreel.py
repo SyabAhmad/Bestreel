@@ -33,7 +33,13 @@ def gsap_js():
         if os.path.exists(p): return p
     raise SystemExit("GSAP not found: run `npm install` in the beatreel folder (or bash setup.sh).")
 r3 = lambda x: round(float(x), 3)
-POP = {"stamp": ("pro_impact/air", -13), "num": ("pro_pop_in/deep", -15), "term": ("pro_typing_run/blip", -20)}
+# default sound per scene type (engine/sfx); anything else gets a soft pop. "sfx": false on an item silences it,
+# "sfx_id" picks another sound
+POP = {"stamp": ("pro_impact/air", -13), "num": ("pro_pop_in/deep", -15), "term": ("pro_typing_run/blip", -21),
+       "sticker": ("ui_pop/soft", -14), "starburst": ("mallet/up4", -16), "stars": ("mallet/up4", -18),
+       "logo": ("mallet/celesta", -18), "wordmark": ("mallet/celesta", -18), "scramble": ("shutter/film", -16),
+       "phone": ("ui_pop/boop", -16), "browser": ("ui_pop/boop", -16)}
+WHOOSH = {"left", "right", "zoom", "drop", "swing", "flip"}
 
 
 def norm(w): return re.sub(r"[^a-z0-9$%'-]", "", w.lower().replace("’", "'"))
@@ -118,7 +124,6 @@ def build(sc, tm, work):
     def prep(h, i, t0, until, top):
         o = dict(h); o["at"] = r3(at_time(h.get("at"), tm, i, t0))
         if top and "x" not in h and sc.get("hero_x"): o["x"] = sc["hero_x"]
-        if top and sc.get("hero_scale"): o["scale"] = h.get("scale", 1) * sc["hero_scale"]
         if until is not None: o["until"] = until
         elif "until" in h: o["until"] = r3(at_time(h["until"], tm, i, t0))
         for k in TIME_LISTS:
@@ -147,7 +152,9 @@ def build(sc, tm, work):
             o["items"] = [dict(x, svg=icon(x["icon"], 160, x.get("color", "#4338ca")) if x.get("icon") else "") for x in o["items"]]
         if o.get("tiles"): o["tiles"] = [dict(x, svg=icon(x["icon"], 160, x.get("color", "#111")) if x.get("icon") else "") for x in o["tiles"]]
         sid, g = POP.get(o["type"], ("pro_pop/thup", -19))
-        if h.get("sfx", True): cues.append([o["at"], h.get("sfx_id", sid), g])
+        if h.get("sfx", True):
+            cues.append([o["at"], h.get("sfx_id", sid), g] + ([{"align": "start"}] if o["type"] == "term" else []))
+            if o.get("in") in WHOOSH: cues.append([o["at"] + .12, "whoosh_fast/crisp", -21])
         for a_ in o.get("ats", [])[1:]: cues.append([a_, "pro_pop/thup", -19])
         for a_ in o.get("ticks", []): cues.append([a_, "pro_pop/tink", -18])
         if "dropAt" in o: cues.append([o["dropAt"], "whoosh_fast/crisp", -17])
@@ -155,7 +162,7 @@ def build(sc, tm, work):
         return o
 
     for i, (b, (t0, t1)) in enumerate(zip(sc["beats"], bounds)):
-        beats.append({"t0": t0, "t1": t1, "slug": b.get("slug", f"{i + 1:02d}"), "count": b.get("count"), "bg": b.get("bg"), "wipe": b.get("wipe", False), "pres": b.get("presenter", True)})
+        beats.append({"t0": t0, "t1": t1, "slug": b.get("slug", f"{i + 1:02d}"), "count": b.get("count"), "bg": b.get("bg"), "wipe": b.get("wipe", False), "pres": b.get("presenter", True), "spot": b.get("kai")})
         hs = b.get("hero", []); hs = hs if isinstance(hs, list) else [hs]
         shots = [g if isinstance(g, list) else [g] for g in b.get("shots", [])]
         starts = [at_time(g[0].get("at"), tm, i, t0) for g in shots]
@@ -181,7 +188,8 @@ def build(sc, tm, work):
             cues.append([r3(at_time(s_[0], tm, i, t0)), s_[1], s_[2] if len(s_) > 2 else -16])
     lines = blocks(tm, sc.get("caption_words", 7))
     reel = {"dur": dur, "theme": sc.get("theme", "studio"), "counter": sc.get("counter"), "meta": sc.get("meta", False), "beats": beats, "items": items, "lines": lines,
-            "cams": cams, "reacts": reacts}
+            "cams": cams, "reacts": reacts, "kaiMove": sc.get("presenter_move", True), "fx": sc.get("fx", True), "heroScale": sc.get("hero_scale", 1.3)}
+    fill_gaps(items, dur)
     if sc.get("caption_y"): reel["capY"] = sc["caption_y"] if isinstance(sc["caption_y"], list) else [sc["caption_y"]] * 2
     fl = []
     for i, (b, (t0, t1)) in enumerate(zip(sc["beats"], bounds)):   # presenter cutaways: "flash": ["word:x", seconds]
@@ -211,6 +219,19 @@ def char_dir(sc):
     c = sc.get("character"); d = c if os.path.isabs(c) else os.path.join(sc["_dir"], c)
     if not os.path.isfile(os.path.join(d, "character.json")): raise SystemExit(f"character folder {d} has no character.json (see README: your own character)")
     return d
+
+
+def fill_gaps(items, dur):
+    """No empty frames: when nothing is on screen between two scenes, the last one stays until the next arrives."""
+    top = sorted([o for o in items if o["type"] != "html"], key=lambda o: o["at"])
+    for o in top:
+        u = o.get("until", dur)
+        if u >= dur - .05: continue
+        nxt = [p["at"] for p in top if p["at"] > u - .02]
+        if not nxt: o["until"] = r3(dur); continue
+        if any(p is not o and p["at"] <= u + .02 and p.get("until", dur) > u + .05 for p in top): continue   # something else is up
+        gap_end = min(nxt)
+        if gap_end - u > .08: o["until"] = r3(gap_end)
 
 
 def presenter(sc, bounds, dur):
@@ -304,7 +325,7 @@ def main():
     print("voice ..."); tm = speak(sc, work)
     print(f"  {tm['duration']} s, {len(tm['lines'])} lines")
     bounds, cues = page(sc, tm, work)
-    if not sc.get("sfx"): cues = []   # sound effects are opt-in ("sfx": true, needs earshot)
+    if sc.get("sfx") is False: cues = []   # "sfx": false = voice and music only
     intro = voice.intro(sc)
     if intro: cues.insert(0, [0.0, "file:" + intro["sound"], intro["gain"]])
     print("render ..."); render(work, os.path.join(work, "silent.mp4"))

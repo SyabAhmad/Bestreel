@@ -8,6 +8,7 @@ beatreel's own code (everything in this repository except the files listed under
 | What | Files | Licence |
 |---|---|---|
 | Space Grotesk, Instrument Serif, Inter, JetBrains Mono, Archivo, Obel Mono | `engine/fonts/*.woff2` | SIL Open Font License 1.1, see `engine/fonts/OFL.txt` |
+| Sound effects (12 short code-made sounds rendered from earshot's bank, Copyright (c) 2026 Leon Lin) | `engine/sfx/*.wav` | MIT |
 | World map points, generated with [dotted-map](https://github.com/NTag/dotted-map) | `engine/worldmap.js` | MIT (dotted-map) |
 
 ## Installed by `setup.sh` (not bundled)

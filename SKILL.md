@@ -25,7 +25,9 @@ Work happens in `build/<name>/` next to the script (voice is cached until the li
    object for a line, rewrite the line.
 2. `board` → read `build/<name>/pronounce.txt` and fix guessed words with `voice.say`; look at the frames sheet.
 3. `make` → check the first frames and a few frames per beat before handing the video over.
-4. Scenes stay on screen ~2-3 s; set `"max_hold": 2.6` and the build warns about anything held longer.
+4. Cut each beat into 2 shots or more; scenes stay on screen ~2 s (`"max_hold": 2.6` warns about longer holds).
+   When a scene's content arrives late (a pile, a row, a list), start its first piece at the beat start so the
+   frame is never empty. Between scenes the last one stays up until the next arrives.
 
 ## Script
 
@@ -47,13 +49,14 @@ Work happens in `build/<name>/` next to the script (voice is cached until the li
 
 **Top level**: `name`, `theme` (`studio` default, `night`, `paper`, or your own), `voice` {name, speed, say,
 natural}, `music` {style: "soft" | "beat" | "none" (default), level (dB, default -33), bpm, transpose, duck_db},
-`sfx` (true = sound effects through earshot), `sfx_level`, `intro` {sound: "file.wav", gain, lead},
+`sfx` (false = no sound effects; on by default, from `engine/sfx/`), `sfx_level` (default -26), `intro` {sound: "file.wav", gain, lead},
 `character` ("kai" default, "none", or a folder path), `avatar_colors`, `presenter` {scale, y},
 `caption_words` (words per caption block, default 7), `caption_y` (y px, or [with presenter, without]),
-`hero_scale` (multiplies every scene), `hero_x`, `max_hold`, `meta` (true = slug row on top) + `counter`
+`hero_scale` (every scene, default 1.3; scenes are scaled down to fit the frame anyway), `fx` (false = no
+auto entrances, shakes, sparks), `presenter_move` (false = Kai stays centred), `hero_x`, `max_hold`, `meta` (true = slug row on top) + `counter`
 {label, start}.
 
-**Beat**: `lines` (`_word_` = highlighted key word), `hero` (one item or a list, whole beat) or `shots` (a list;
+**Beat**: `kai` ("left" | "center" | "right"), `lines` (`_word_` = highlighted key word), `hero` (one item or a list, whole beat) or `shots` (a list;
 each shot is an item or a list of items and lasts until the next shot's `at`), `pose`, `presenter` (false = hide
 the presenter for this beat), `react` (word(s): burst lines around the head), `cam: "big"` (presenter starts
 large until the first scene lands), `bg` ("red" floods the accent colour, "black"), `wipe` (true = an iris wipe
@@ -64,8 +67,10 @@ beats), `flash` ["word:x", seconds] (presenter cutaway).
 in the next beat), or seconds from the beat start. Omitted = beat start.
 
 **Every item**: `type`, `at`, `until`, `x`, `y` (centre px; default 540, 820 with a presenter / 960 without),
-`scale`, `rot`, `z`, `in` (zoom, left, right, up, down, flip, drop, swing), `out` (left, right, zoom, down,
-shrink), `exit: "cut"`, `pop: false`, `float: false`, `tilt` [rx, ry], `push` (slow zoom to this scale),
+`scale`, `rot`, `z`, `fit` (false = no auto-fit), `in` (zoom, left, right, up, down, flip, drop, swing; varied
+automatically when omitted), `out` (left, right, zoom, down,
+shrink), `exit: "cut"`, `pop: false`, `float: false`, `sfx` (false), `sfx_id` (a sound in `engine/sfx/index.json`, or any
+earshot id when earshot is installed), `tilt` [rx, ry], `push` (slow zoom to this scale),
 `icon` + `color` wherever an icon is shown. Icons are Iconify names (`lucide:key`, `simple-icons:github`,
 `logos:python`, `fluent-emoji-flat:rocket`); never use emoji characters.
 

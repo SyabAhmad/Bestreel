@@ -549,7 +549,7 @@ html, body { margin: 0; background: #000; }
    highlighter block, soft blurred shadows, an iris wipe, rounded labels.
    night: the same in dark navy with a violet glow.
    paper: the base rules alone (dotted page, grey-to-ink captions, dotted shadows). */
-#stage.t-studio, #stage.t-night { --bg: #f4f5fb; --ink: #14142b; --mute: #c5c7d9; --meta: #6b6f8a; --accent: #4f46e5; --hi: #f97316;
+#stage.t-studio, #stage.t-night { --bg: #ffffff; --ink: #14142b; --mute: #c5c7d9; --meta: #6b6f8a; --accent: #4f46e5; --hi: #f97316;
   --card: #ffffff; --line: rgba(20,20,43,.08); --dot: transparent; --shadow: rgba(30,27,75,.20); --term: #14142b; --ghost: rgba(79,70,229,.22);
   background-color: var(--bg); background-image: linear-gradient(var(--grid, rgba(20,20,43,.05)) 2px, transparent 2px), linear-gradient(90deg, var(--grid, rgba(20,20,43,.05)) 2px, transparent 2px);
   background-size: 72px 72px; background-position: 3px 3px; }
@@ -585,3 +585,11 @@ html, body { margin: 0; background: #000; }
 .t-studio .dc { background: #dfe1ee; } .t-studio .dc[data-on="1"] { background: var(--accent); box-shadow: 0 0 18px var(--ghost); }
 .t-studio .dc[data-on="2"] { background: #1e1b4b; box-shadow: none; }
 .t-studio .dl2.r1 { background: var(--accent); } .t-studio .dl2.r2 { background: #1e1b4b; box-shadow: none; }
+
+/* studio: a plain white page */
+#stage.t-studio { background-image: none; }
+.t-studio #glow { display: none; }
+.t-studio .card, .t-studio .shot, .t-studio .brw, .t-studio .gauge { border: 2px solid #e8e9f2; }
+/* sparks on impacts */
+.spk3 { position: absolute; width: 18px; height: 18px; margin: -9px; border-radius: 50%; background: var(--accent); z-index: 40; pointer-events: none; }
+.spk3.b { background: var(--hi); width: 12px; height: 12px; margin: -6px; } .spk3.c { background: transparent; border: 4px solid var(--accent); width: 22px; height: 22px; margin: -11px; }

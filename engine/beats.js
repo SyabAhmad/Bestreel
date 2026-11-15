@@ -488,12 +488,25 @@
         tl.fromTo(sp, { x: 0, y: 0, scale: .3, rotation: 0 }, { x: Math.cos(ang) * r, y: Math.sin(ang) * r, scale: .6 + rnd() * .9, rotation: (rnd() - .5) * 360, opacity: 0, duration: 1.2, ease: 'power2.out', immediateRender: false }, b); }
       const tx = e.querySelector('.stxt'); vis(tx, a + .25); tl.fromTo(tx, { scale: 1.6, opacity: 0 }, { scale: 1, opacity: 1, duration: .35, ease: 'back.out(2)', immediateRender: false }, a + .25); },
   };
+  // ---- effects: varied entrances, a camera shake on impacts, sparks
+  const AUTO_IN = ['pop', 'zoom', 'left', 'up', 'right', 'flip', 'pop', 'swing']; let nIn = 0;
+  const shake = (t, a) => tl.fromTo(heroes, { x: a, y: -a * .5, rotation: .4 }, { x: 0, y: 0, rotation: 0, duration: .45, ease: 'elastic.out(1.4, .28)', immediateRender: false }, t);
+  const sparks = (x, y, t, n) => { for (let i = 0; i < n; i++) { const s_ = $('i', 'spk3', heroes); const ang = (i / n) * Math.PI * 2 + rnd() * .5, r = 180 + rnd() * 160;
+    s_.style.left = x + 'px'; s_.style.top = y + 'px'; if (i % 3 === 1) s_.className += ' b'; if (i % 3 === 2) s_.className += ' c';
+    vis(s_, t, t + .7); tl.fromTo(s_, { x: 0, y: 0, scale: 1.2, opacity: 1 }, { x: Math.cos(ang) * r, y: Math.sin(ang) * r, scale: .2, opacity: 0, duration: .65, ease: 'power3.out', immediateRender: false }, t); } };
   function place(o, parent, owner) {
     // the moving wrapper (.h) holds the built object, so the object's shadow can sit behind its own background
     const e = $('div', 'h', parent), inner = $('div', '', e); const t = o.at, u = o.until ?? owner?.until ?? R.dur;
     (B[o.type] || B.card)(o, inner, t);
-    e.style.left = (o.x ?? (owner ? (owner.w || 920) / 2 : 540)) + 'px'; e.style.top = (o.y ?? (owner ? (owner.h || 760) / 2 : (R.nopres ? 960 : 820))) + 'px'; e.style.zIndex = o.z ?? 1;
-    const S1 = o.scale || 1;
+    // zone for a scene: under the caption, above Kai's head (or the whole frame without a presenter)
+    const Z = R.nopres ? [300, 1700] : [300, 1235], ZC = (Z[0] + Z[1]) / 2;
+    e.style.left = (o.x ?? (owner ? (owner.w || 920) / 2 : 540)) + 'px'; e.style.top = (o.y ?? (owner ? (owner.h || 760) / 2 : ZC)) + 'px'; e.style.zIndex = o.z ?? 1;
+    let S1 = (o.scale || 1) * (owner ? 1 : (R.heroScale ?? 1.3));
+    if (!owner && o.fit !== false) {   // keep it inside the frame: scale down to fit 960 px wide and the zone's height
+      const w = inner.offsetWidth, h = inner.offsetHeight, x = o.x ?? 540;
+      const maxW = Math.min(980, 2 * Math.min(x, 1080 - x) - 60), maxH = (Z[1] - Z[0]) * 1.02;
+      if (w && h) { S1 = Math.min(S1, maxW / w, maxH / h);
+        if (o.y == null) { const half = h * S1 / 2; e.style.top = Math.min(Math.max(ZC, Z[0] + half), Z[1] - half) + 'px'; } } }
     gsap.set(e, { xPercent: -50, yPercent: -50, rotation: o.rot || 0, scale: S1 });
     vis(e, t, u);
     const stamp = o.type === 'stamp', stk = o.type === 'sticker';
@@ -501,6 +514,9 @@
     const IN = { zoom: { scale: S1 * 1.6, opacity: 0, filter: 'blur(10px)' }, left: { x: -480, opacity: 0, rotation: (o.rot || 0) - 6 }, right: { x: 480, opacity: 0, rotation: (o.rot || 0) + 6 },
       up: { y: 300, opacity: 0 }, down: { y: -300, opacity: 0 }, flip: { rotationY: -85, opacity: 0, transformPerspective: 1400 }, drop: { y: -620, opacity: 1 }, swing: { rotationX: -70, opacity: 0, transformPerspective: 1400, transformOrigin: '50% 0%' } };
     pop.scale *= S1;
+    if (!o.in && !owner && R.fx !== false && !stamp && !stk && o.pop !== false && o.type !== 'clip') o.in = AUTO_IN[(nIn++) % AUTO_IN.length];   // vary entrances
+    if (!owner && R.fx !== false && (stamp || o.type === 'starburst')) { shake(t + (stamp ? .16 : .1), stamp ? 16 : 10); sparks(parseFloat(e.style.left), parseFloat(e.style.top), t + .14, stamp ? 14 : 22); }
+    if (!owner && R.fx !== false && stk) sparks(parseFloat(e.style.left), parseFloat(e.style.top), t + .1, 10);
     if (o.in && IN[o.in]) tl.fromTo(e, IN[o.in], { x: 0, y: 0, scale: S1, opacity: 1, rotation: o.rot || 0, rotationY: 0, rotationX: 0, filter: 'blur(0px)', duration: o.in === 'drop' ? .55 : .36, ease: o.in === 'drop' ? 'bounce.out' : 'power3.out', immediateRender: false }, t);
     else if (o.pop !== false) tl.fromTo(e, pop, { scale: S1, opacity: 1, y: 0, rotation: o.rot || 0, duration: stamp ? .2 : .42, ease: stamp ? 'power4.out' : 'back.out(1.8)', immediateRender: false }, t);
     if (o.tilt) tl.fromTo(inner, { rotationX: o.tilt[0], rotationY: o.tilt[1] || 0, transformPerspective: 1500 }, { rotationX: 0, rotationY: 0, transformPerspective: 1500, duration: o.tiltDur ?? 1.2, ease: 'power3.out', immediateRender: true }, t);
@@ -512,6 +528,7 @@
     return e;
   }
   R.items.forEach(o => place(o, heroes, null));
+  if (R.fx !== false) R.beats.forEach((b, k) => { if (k) tl.fromTo(heroes, { scale: 1.035 }, { scale: 1, duration: .4, ease: 'power3.out', transformOrigin: '50% 40%', immediateRender: false }, b.t0); });
 
   // ---- presenter: rises in, can start big and shrink when the hero lands, bounces on beat changes, reacts
   const pres = document.getElementById('pres'), pin = document.getElementById('presin'); const P = R.presenter || {};
@@ -528,6 +545,11 @@
     R.beats.forEach((b, k) => { if (!k) return; const want = b.pres !== false; if (want === shown) return; shown = want;
       if (want) tl.fromTo(ps, { y: 900, autoAlpha: 1 }, { y: 0, autoAlpha: 1, duration: .45, ease: 'back.out(1.2)', immediateRender: false }, b.t0 - .05);
       else { tl.to(ps, { y: 900, duration: .35, ease: 'power3.in' }, b.t0 - .1); tl.set(ps, { autoAlpha: 0 }, b.t0 + .26); } }); }
+  // Kai walks along the bottom: "kai": "left" | "center" | "right" per beat, or the default rhythm
+  if (!R.flashes && !R.nopres) { const X = { left: -150, center: 0, right: 150 }, AUTO = ['center', 'left', 'center', 'right']; let cur = 0;
+    R.beats.forEach((b, k) => { const want = X[b.spot] ?? (R.kaiMove === false ? 0 : X[AUTO[k % AUTO.length]]);
+      if (!k) { gsap.set(pres, { x: want }); tl.set(pres, { x: want }, 0); cur = want; return; }
+      if (want !== cur) { tl.to(pres, { x: want, duration: .6, ease: 'power3.inOut' }, b.t0 - .2); tl.fromTo(pin, { rotation: 0 }, { rotation: want > cur ? 3 : -3, duration: .3, yoyo: true, repeat: 1, ease: 'sine.inOut', transformOrigin: '50% 100%', immediateRender: false }, b.t0 - .2); cur = want; } }); }
   R.beats.forEach((b, k) => { if (k && !R.flashes) tl.fromTo(pres, { scale: .975 }, { scale: 1, duration: .28, ease: 'back.out(3)', transformOrigin: '50% 100%', immediateRender: false }, b.t0); });
   const hx = (P.headX ?? .517) * 100, hy = (P.headY ?? .31) * 100;
   (R.reacts || []).forEach(t => {
