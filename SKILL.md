@@ -165,6 +165,25 @@ gasp, oops, excited, shh, thumbs_up, think, wait, stop, facepalm, clasp, arms_cr
 laugh, nervous, stressed, sad, angry, bored, skeptical, wink, cry, panic. See `docs/kai-poses.jpg`.
 `avatar_colors` keys: skin, skinSh, hair, hairHi, shirt, shirtSh, shirtHi, cuff, tee, iris, shadow, mark.
 
+## Make your own presenter
+
+When someone asks for their own character, pick the lightest route that gets them what they described:
+
+1. **Recolour** Kai or Maya: `"avatar_colors": {"skin": "#8d5a3b", "hair": "#c9a227", "shirt": "#1f6f8b", ...}`.
+   Enough for a different skin tone, hair colour or outfit.
+2. **A new look in code** (new hair, face details, accessories), drawn on the same rig so every pose, mood, blink and
+   lip-sync keeps working. Maya is the worked example: in `engine/avatar.js` search for `FEM`. A look is a set of
+   extra shapes in the existing groups (long hair goes in `backHair` behind the body, side locks in `body`, fringe,
+   lashes and earrings in `head`) plus a palette that overrides `C`. To add one:
+   - add a flag next to `FEM` (for example `const ROBOT = A.look === 'robot'`), a palette for it next to Maya's, and
+     its shapes in the same places Maya's go; keep the head, eyes and mouth geometry so the face still animates;
+   - register the name in `LOOKS` at the top of `beatreel.py` (`"rio": "robot"`); add the look to `FEMALE_LOOKS` if it
+     should default to a female voice;
+   - use it with `"character": "rio"`, run `board` on a short script and check a few poses (`hi`, `shrug`, `excited`,
+     `think`) at full size before rendering.
+3. **A character you already have** (drawn, 3D or filmed): put one transparent video (webm with alpha) in a folder
+   with a `character.json` listing a clip per pose (see README, "Presenter"), and use `"character": "path/to/folder"`.
+
 ## Checking frames by hand
 
 The page is one paused GSAP timeline (`window.__timelines.reel`). To screenshot a moment, seek with events on:

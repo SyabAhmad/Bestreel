@@ -24,7 +24,7 @@ one line which ones you used:
 |---|---|---|
 | format | 9:16 (Reels, Shorts, TikTok) | 16:9 (YouTube) |
 | length | 20-40 s (about 60-110 spoken words) | |
-| presenter | Kai, male voice | Maya (`"character": "maya"`, female voice) when they ask for a woman / female presenter; `"none"` |
+| presenter | Kai, male voice | Maya (`"character": "maya"`, female voice) when they ask for a woman / female presenter; their own character (SKILL.md, "Make your own presenter"); `"none"` |
 | look | white with a faint grid | `"bg": "plain"`, `"colors": {"accent": ...}`, `"theme": "night"` |
 | sound | sound effects on, no music | `"music": {"style": "soft"}`, `"sfx": false` |
 

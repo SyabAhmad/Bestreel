@@ -35,7 +35,8 @@ catalogue of every scene: [docs/tour.mp4](docs/tour.mp4).
   from shot to shot, impacts shake the frame and throw sparks, and every scene is scaled to fit the frame.
 - **Two presenters drawn in code**: Kai and Maya (`"character": "maya"`), on screen the whole video: lip movement on every word, blinks,
   25+ poses and moods (`docs/kai-poses.jpg`), and he moves between left, centre and right along the bottom.
-  Recolour him, swap in your own character, or leave him out.
+  Recolour them, ask your coding agent to draw a new presenter on the same rig (SKILL.md, "Make your own
+  presenter"), plug in your own character video, or leave the presenter out.
 - **Sound effects built in**: 12 short code-made sounds (pops, ticks, a whoosh, an impact, typing, chimes) in
   `engine/sfx/`, placed on every entrance, tick and impact. `"sfx": false` turns them off.
 - **Two formats**: `"format": "9:16"` (default, Reels/Shorts/TikTok) or `"16:9"` (YouTube): caption on top,

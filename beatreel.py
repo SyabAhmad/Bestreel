@@ -51,7 +51,7 @@ def load(path):
     # the voice module reads "scenes" with "lines": a beat is a scene
     sc["scenes"] = [{"lines": b["lines"], **({"pause_before": b["pause_before"]} if "pause_before" in b else {})} for b in sc["beats"]]
     # a voice that matches the presenter: Kai speaks with a male stock voice, Maya with a female one
-    sc.setdefault("voice", {}).setdefault("name", "af_heart" if sc.get("character") == "maya" else "am_michael")
+    sc.setdefault("voice", {}).setdefault("name", "af_heart" if LOOKS.get(sc.get("character", "kai")) in FEMALE_LOOKS else "am_michael")
     return sc
 
 
@@ -119,6 +119,11 @@ def blocks(tm, max_words=7):
                 out.append(cur); cur = []
         if cur: out.append(cur)
     return [{"start": c[0]["t"], "words": c} for c in out]
+
+
+# code-drawn presenters (engine/avatar.js): name -> look. Add your own here after drawing it in avatar.js.
+LOOKS = {"kai": "male", "maya": "female"}
+FEMALE_LOOKS = {"female"}
 
 
 def size(sc):
@@ -213,13 +218,13 @@ def build(sc, tm, work):
             if o["until"] - o["at"] > hold + .05: print(f'  ! held {o["until"] - o["at"]:.1f}s: {o["type"]} at {o["at"]:.2f}')
     if sc.get("character") == "none":
         reel["presenter"] = {"headX": .5, "headY": .31}; reel["nopres"] = True
-    elif sc.get("character", "kai") in ("kai", "maya"):
+    elif sc.get("character", "kai") in LOOKS:
         ws = [w for l in tm["lines"] for w in l["words"]]
         words = [{"t": w["t"], "d": r3((ws[k + 1]["t"] if k + 1 < len(ws) else w["t"] + .3) - w["t"]), "n": len(re.sub(r"[^A-Za-z0-9]", "", w["w"]))} for k, w in enumerate(ws)]
         P = sc.get("presenter", {}); wide = W > H
         reel["avatar"] = {"poses": [{"t0": t0, "pose": b.get("pose", "talk")} for b, (t0, _) in zip(sc["beats"], bounds)], "words": words,
                           "top": P.get("y", 470 if wide else 1060), "scale": P.get("scale", .8 if wide else 1), "cx": P.get("x", 1530 if wide else 540),
-                          "look": "female" if sc.get("character") == "maya" else "male", "colors": sc.get("avatar_colors", {})}
+                          "look": LOOKS.get(sc.get("character", "kai"), "male"), "colors": sc.get("avatar_colors", {})}
         reel["presenter"] = {"headX": .5, "headY": .31}
     else:
         cdir = char_dir(sc)
@@ -251,7 +256,7 @@ def presenter(sc, bounds, dur):
     """the avatar at the bottom. Default "kai": the engine's own code-drawn presenter (engine/avatar.js), posed per
     beat. "character": "path/to/folder" uses your own video character (one transparent gesture clip per pose, looped);
     "character": "none" leaves the presenter out."""
-    if sc.get("character", "kai") in ("kai", "maya", "none"):
+    if sc.get("character", "kai") in LOOKS or sc.get("character") == "none":
         return None, '<div id="pres"><div id="presin"></div></div>'
     cdir = char_dir(sc)
     c = json.load(open(os.path.join(cdir, "character.json"))); clips, alias = c["clips"], c.get("aliases", {})
