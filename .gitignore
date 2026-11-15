@@ -5,3 +5,4 @@ build/
 *-frames.jpg
 !docs/*.mp4
 .venv/
+videos/

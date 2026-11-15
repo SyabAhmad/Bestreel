@@ -71,6 +71,21 @@ bash setup.sh --sfx      # optional: also install earshot for sound effects
 `./beatreel ...` runs with the Python that setup installed. HyperFrames renders through a headless Chrome; setup
 installs one with Playwright, or point `HYPERFRAMES_BROWSER_PATH` at your own.
 
+## Use it with an AI agent
+
+Paste the repo link into Claude Code or Codex CLI and ask for a video ("make a 30 second video about how
+vaccines work"). The agent clones the repo, reads [AGENTS.md](AGENTS.md) (the steps: setup, research, script,
+pronunciation check, render, frame check) and hands you the mp4. It needs to run on a machine with internet for
+the first setup; chat-only assistants and offline sandboxes can write the script but not render it.
+
+To have it as a Claude Code skill in every project:
+
+```bash
+git clone https://github.com/anand-reddi/beatreel ~/.claude/skills/beatreel && bash ~/.claude/skills/beatreel/setup.sh
+```
+
+Then ask Claude Code for a video anywhere; it finds the skill by its description.
+
 ## Make your first video
 
 ```bash
