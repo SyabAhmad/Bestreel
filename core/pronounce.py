@@ -86,8 +86,10 @@ def phonemes(text, say=None):
     for t in toks:
         if not t.phonemes or not re.search(r"\w", t.text): continue
         w = t.text.strip(",.!?:;\"'()")
+        rating = getattr(t, "rating", None)
+        if rating is None: rating = getattr(getattr(t, "_", None), "rating", None)   # misaki >= 0.8 keeps it in t._
         why = ("custom" if w in g.custom else "say" if say and w in say else
-               "guessed" if (t.rating or 0) <= 2 else
+               "guessed" if (rating or 0) <= 2 else
                "acronym" if re.fullmatch(r"[A-Z]{2,}s?", w) else
                "number" if re.search(r"\d", w) else
                "mixed case" if re.search(r"[a-z][A-Z]|[A-Z]{2}[a-z]", w) else None)

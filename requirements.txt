@@ -1,7 +1,8 @@
 kokoro-onnx>=0.4
-misaki[en]>=0.7
+misaki>=0.7
 spacy
 num2words
+espeakng-loader
 soundfile
 pyloudnorm
 scipy

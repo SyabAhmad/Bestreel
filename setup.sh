@@ -7,7 +7,9 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 CACHE="${BEATREEL_CACHE:-$HOME/.cache/beatreel}"
 
 echo "python packages ..."
-python3 -m pip install -q -r "$HERE/requirements.txt" 2>/dev/null || python3 -m pip install -q --break-system-packages -r "$HERE/requirements.txt"
+pipi() { python3 -m pip install -q "$@" -r "$HERE/requirements.txt"; }
+if [ -n "${VIRTUAL_ENV:-}" ]; then pipi
+else pipi --user 2>/dev/null || pipi --user --break-system-packages 2>/dev/null || pipi --break-system-packages; fi
 
 echo "voice model ..."
 TTS="${BEATREEL_TTS:-$CACHE/tts}"; mkdir -p "$TTS"
