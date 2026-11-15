@@ -1,0 +1,164 @@
+{
+ "name": "coffee",
+ "theme": "studio",
+ "max_hold": 2.6,
+ "beats": [
+  {
+   "pose": "point_up",
+   "lines": [
+    "Coffee doesn't give you energy.",
+    "It _hides_ how tired you are."
+   ],
+   "shots": [
+    {
+     "type": "card",
+     "icon": "fluent-emoji-flat:hot-beverage",
+     "title": "Energy?",
+     "w": 560,
+     "in": "zoom",
+     "scale": 1.4
+    },
+    {
+     "type": "sticker",
+     "lines": [
+      "IT HIDES",
+      "THE TIRED"
+     ],
+     "red": true,
+     "rot": -3,
+     "at": "word:hides"
+    }
+   ]
+  },
+  {
+   "pose": "explain",
+   "lines": [
+    "All day, your brain makes a chemical called _adenosine_."
+   ],
+   "shots": [
+    {
+     "type": "card",
+     "icon": "fluent-emoji-flat:brain",
+     "label": "while you're awake",
+     "title": "Your brain",
+     "w": 620,
+     "in": "up",
+     "scale": 1.3
+    },
+    {
+     "type": "pile",
+     "items": [
+      "adenosine",
+      "adenosine",
+      "adenosine",
+      "adenosine",
+      "adenosine",
+      "adenosine",
+      "adenosine"
+     ],
+     "at": "word:adenosine",
+     "fs": 46
+    }
+   ]
+  },
+  {
+   "pose": "shrug",
+   "lines": [
+    "The more it piles up, the sleepier you feel."
+   ],
+   "hero": {
+    "type": "gauge",
+    "title": "sleep pressure",
+    "value": 82,
+    "verdict": "SLEEPY",
+    "at2": "word:sleepier",
+    "scale": 1.5,
+    "y": 680
+   }
+  },
+  {
+   "pose": "excited",
+   "lines": [
+    "Caffeine looks almost the same,",
+    "so it _blocks_ the spots adenosine needs."
+   ],
+   "shots": [
+    {
+     "type": "compare",
+     "left": {
+      "title": "adenosine",
+      "text": "makes you sleepy"
+     },
+     "right": {
+      "title": "caffeine",
+      "text": "looks the same"
+     },
+     "rightAt": "word:same",
+     "in": "left",
+     "scale": 1.3
+    },
+    {
+     "type": "stamp",
+     "text": "BLOCKED",
+     "rot": -6,
+     "at": "word:blocks"
+    }
+   ]
+  },
+  {
+   "pose": "count",
+   "lines": [
+    "About half of it is still in you five hours later."
+   ],
+   "hero": {
+    "type": "num",
+    "value": 5,
+    "from": 0,
+    "suffix": " hrs",
+    "label": "time to clear half the caffeine",
+    "at": "word:five"
+   }
+  },
+  {
+   "pose": "shocked",
+   "react": "word:once",
+   "lines": [
+    "When it wears off, all that adenosine hits at _once_."
+   ],
+   "shots": [
+    {
+     "type": "domino",
+     "items": [
+      "focus",
+      "energy",
+      "mood"
+     ],
+     "fallAt": "word:hits",
+     "scale": 1.6
+    },
+    {
+     "type": "sticker",
+     "lines": [
+      "THE CRASH"
+     ],
+     "rot": 3,
+     "at": "word:once"
+    }
+   ]
+  },
+  {
+   "pose": "hi",
+   "lines": [
+    "Follow for one small science fact a day."
+   ],
+   "hero": {
+    "type": "follow",
+    "handle": "@yourname",
+    "text": "one small science fact a day",
+    "tapAt": "word:follow+0.4",
+    "y": 700,
+    "scale": 1.1
+   }
+  }
+ ]
+}
