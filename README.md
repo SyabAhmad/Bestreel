@@ -10,9 +10,18 @@ script.json  →  voice (Kokoro, offline)  →  word timings  →  HTML + GSAP p
 
 It runs entirely on your machine. No accounts, no API keys, no cloud voice.
 
-Sample renders: [docs/coffee.mp4](docs/coffee.mp4) (9:16, Kai), [docs/cold-battery.mp4](docs/cold-battery.mp4)
-(9:16, Maya), [docs/coffee-16x9.mp4](docs/coffee-16x9.mp4) (16:9, plain background, custom colour) and
-[docs/tour.mp4](docs/tour.mp4) (a catalogue of the scenes).
+<table>
+<tr>
+<td align="center"><a href="docs/coffee.mp4"><img src="docs/coffee.gif" width="240" alt="coffee example, 9:16 with Kai"></a><br><sub>9:16 · Kai · grid</sub></td>
+<td align="center"><a href="docs/cold-battery.mp4"><img src="docs/cold-battery.gif" width="240" alt="cold-battery example, 9:16 with Maya"></a><br><sub>9:16 · Maya · female voice</sub></td>
+</tr>
+<tr>
+<td colspan="2" align="center"><a href="docs/coffee-16x9.mp4"><img src="docs/coffee-16x9.gif" width="500" alt="coffee example, 16:9, plain background"></a><br><sub>16:9 · plain background · custom accent</sub></td>
+</tr>
+</table>
+
+The GIFs are silent 9-second previews; click one for the full video with voice, sound effects and music. A
+catalogue of every scene: [docs/tour.mp4](docs/tour.mp4).
 
 ## What it has
 
