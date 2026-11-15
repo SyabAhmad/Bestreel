@@ -11,10 +11,10 @@ HyperFrames, then mixes the audio to -14 LUFS.
 
 ```bash
 bash setup.sh                                  # once
-python3 beatreel.py board path/script.json     # voice + frames sheet <name>-frames.jpg (middle of each beat)
-python3 beatreel.py make  path/script.json     # <name>.mp4 next to the script
-python3 beatreel.py say   "Postgres on macOS"  # how the voice reads a line, and which words it guessed
-python3 beatreel.py icons rocket               # icon names for "icon": "set:name"
+./beatreel board path/script.json     # voice + frames sheet <name>-frames.jpg (middle of each beat)
+./beatreel make  path/script.json     # <name>.mp4 next to the script
+./beatreel say   "Postgres on macOS"  # how the voice reads a line, and which words it guessed
+./beatreel icons rocket               # icon names for "icon": "set:name"
 ```
 
 Work happens in `build/<name>/` next to the script (voice is cached until the lines change).

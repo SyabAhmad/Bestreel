@@ -1,15 +1,30 @@
 #!/usr/bin/env bash
 # beatreel setup. Safe to run again.   usage: bash setup.sh [--sfx]
-#   Python packages, the Kokoro voice model (~340 MB, cached in ~/.cache/beatreel/tts), GSAP (npm), the icon sets
+#   A Python 3.10+ virtualenv in .venv with the packages, the Kokoro voice model (~340 MB, cached in ~/.cache/beatreel/tts), GSAP (npm), the icon sets
 #   (~30 MB), and checks for ffmpeg, node/npx and a headless Chrome. --sfx also installs earshot (sound effects).
 set -euo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 CACHE="${BEATREEL_CACHE:-$HOME/.cache/beatreel}"
 
+echo "python ..."
+# Python 3.10+ (macOS ships 3.9 as python3). Everything goes into .venv inside this folder.
+PY=""
+for c in "${BEATREEL_PYTHON:-}" python3.13 python3.12 python3.11 python3.10 /opt/homebrew/bin/python3 /usr/local/bin/python3 python3; do
+  [ -n "$c" ] && command -v "$c" >/dev/null 2>&1 || continue
+  if "$c" -c 'import sys; sys.exit(0 if (3, 10) <= sys.version_info[:2] < (3, 14) else 1)' 2>/dev/null; then PY="$(command -v "$c")"; break; fi
+done
+if [ -z "$PY" ]; then
+  echo "ERROR: beatreel needs Python 3.10 - 3.13 (found: $(python3 --version 2>&1))." >&2
+  echo "  macOS:  brew install python@3.12     (or the installer from https://www.python.org/downloads/)" >&2
+  echo "  Linux:  sudo apt install python3.12 python3.12-venv   (or your distro's equivalent)" >&2
+  echo "Then run bash setup.sh again." >&2
+  exit 1
+fi
+echo "  using $PY ($("$PY" --version))"
+[ -x "$HERE/.venv/bin/python" ] || "$PY" -m venv "$HERE/.venv"
+"$HERE/.venv/bin/python" -m pip install -q --upgrade pip
 echo "python packages ..."
-pipi() { python3 -m pip install -q "$@" -r "$HERE/requirements.txt"; }
-if [ -n "${VIRTUAL_ENV:-}" ]; then pipi
-else pipi --user 2>/dev/null || pipi --user --break-system-packages 2>/dev/null || pipi --break-system-packages; fi
+"$HERE/.venv/bin/python" -m pip install -q -r "$HERE/requirements.txt"
 
 echo "voice model ..."
 TTS="${BEATREEL_TTS:-$CACHE/tts}"; mkdir -p "$TTS"
@@ -31,7 +46,7 @@ if [ "${1:-}" = "--sfx" ]; then
   E="$CACHE/earshot"
   if [ ! -x "$E/.venv/bin/earshot" ]; then
     rm -rf "$E"; git clone -q --depth 1 https://github.com/Leonxlnx/earshot.git "$E"
-    ( cd "$E" && python3 -m venv .venv && .venv/bin/pip install -q -e . ) || echo "WARN: earshot install failed; reels render without sound effects" >&2
+    ( cd "$E" && "$PY" -m venv .venv && .venv/bin/pip install -q -e . ) || echo "WARN: earshot install failed; reels render without sound effects" >&2
   fi
 fi
 
@@ -42,5 +57,8 @@ for c in "${HYPERFRAMES_BROWSER_PATH:-}" "${PLAYWRIGHT_BROWSERS_PATH:-/nonexiste
          "$HOME"/.cache/ms-playwright/chromium_headless_shell-*/chrome-*/chrome-headless-shell "$HOME"/Library/Caches/ms-playwright/chromium_headless_shell-*/chrome-*/chrome-headless-shell; do
   [ -n "$c" ] && [ -x "$c" ] && found="$c"
 done
-[ -n "$found" ] || echo "NOTE: no headless Chrome found; HyperFrames will fetch one (or run: npx playwright install chromium-headless-shell)" >&2
-echo "done. Try: python3 beatreel.py make examples/coffee/coffee.json"
+if [ -z "$found" ]; then
+  echo "headless chrome ..."
+  npx -y playwright install chromium-headless-shell || echo "WARN: could not install a headless Chrome; HyperFrames will try to fetch one" >&2
+fi
+echo "done. Try: ./beatreel make examples/coffee/coffee.json"

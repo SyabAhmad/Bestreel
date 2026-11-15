@@ -16,7 +16,7 @@ Sample renders: [docs/coffee.mp4](docs/coffee.mp4) (light look), [docs/cold-batt
 ## What it has
 
 - **A voice**: [Kokoro](https://huggingface.co/hexgrad/Kokoro-82M), 50+ stock voices, with a pronunciation
-  checker that lists every word it had to guess (`python3 beatreel.py say "..."`), so names, acronyms and prices
+  checker that lists every word it had to guess (`./beatreel say "..."`), so names, acronyms and prices
   come out right.
 - **Word-synced captions**: each word pops in as it is spoken, key words (`_like this_`) get a highlight.
 - **One idea per beat**: about 60 animated scenes (cards, numbers that roll, terminals that type, checklists that
@@ -42,22 +42,23 @@ Sample renders: [docs/coffee.mp4](docs/coffee.mp4) (light look), [docs/cold-batt
 
 ## Install
 
-Needs Python 3.10+, Node 18+ and ffmpeg.
+Needs Python 3.10-3.13, Node 18+ and ffmpeg. On a Mac: `brew install python@3.12 node ffmpeg` (the `python3`
+that ships with macOS is 3.9, which is too old; setup finds the newer one by itself).
 
 ```bash
 git clone https://github.com/anand-reddi/beatreel && cd beatreel
-bash setup.sh            # python packages, voice model (~340 MB), gsap, icons
+bash setup.sh            # .venv with the python packages, voice model (~340 MB), gsap, icons, headless Chrome
 bash setup.sh --sfx      # optional: also install earshot for sound effects
 ```
 
-HyperFrames renders through a headless Chrome. If you don't have one, `npx playwright install chromium-headless-shell`
-gets it, or point `HYPERFRAMES_BROWSER_PATH` at your own.
+`./beatreel ...` runs with the Python that setup installed. HyperFrames renders through a headless Chrome; setup
+installs one with Playwright, or point `HYPERFRAMES_BROWSER_PATH` at your own.
 
 ## Make your first video
 
 ```bash
-python3 beatreel.py board examples/coffee/coffee.json   # voice + a frames sheet: examples/coffee/coffee-frames.jpg
-python3 beatreel.py make  examples/coffee/coffee.json   # the video: examples/coffee/coffee.mp4
+./beatreel board examples/coffee/coffee.json   # voice + a frames sheet: examples/coffee/coffee-frames.jpg
+./beatreel make  examples/coffee/coffee.json   # the video: examples/coffee/coffee.mp4
 ```
 
 A script is a list of beats. Each beat has the lines it says and the scene that shows them:

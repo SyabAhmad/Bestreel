@@ -4,3 +4,4 @@ build/
 *.mp4
 *-frames.jpg
 !docs/*.mp4
+.venv/
