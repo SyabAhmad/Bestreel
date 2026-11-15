@@ -50,7 +50,8 @@ def load(path):
     sc["_name"] = sc.get("name") or os.path.splitext(os.path.basename(path))[0]
     # the voice module reads "scenes" with "lines": a beat is a scene
     sc["scenes"] = [{"lines": b["lines"], **({"pause_before": b["pause_before"]} if "pause_before" in b else {})} for b in sc["beats"]]
-    sc.setdefault("voice", {}).setdefault("name", voice.DEFAULT_VOICE)
+    # a voice that matches the presenter: Kai speaks with a male stock voice, Maya with a female one
+    sc.setdefault("voice", {}).setdefault("name", "af_heart" if sc.get("character") == "maya" else "am_michael")
     return sc
 
 
@@ -118,7 +119,14 @@ def blocks(tm, max_words=7):
     return [{"start": c[0]["t"], "words": c} for c in out]
 
 
+def size(sc):
+    f = str(sc.get("format", "9:16"))
+    if f not in ("9:16", "16:9"): raise SystemExit(f'format must be "9:16" or "16:9", not {f!r}')
+    return (1920, 1080) if f == "16:9" else (1080, 1920)
+
+
 def build(sc, tm, work):
+    W, H = size(sc)
     bounds = beat_bounds(sc, tm); dur = tm["duration"]; items, beats, cues, cams, reacts = [], [], [], [], []
 
     def prep(h, i, t0, until, top):
@@ -188,7 +196,8 @@ def build(sc, tm, work):
             cues.append([r3(at_time(s_[0], tm, i, t0)), s_[1], s_[2] if len(s_) > 2 else -16])
     lines = blocks(tm, sc.get("caption_words", 7))
     reel = {"dur": dur, "theme": sc.get("theme", "studio"), "counter": sc.get("counter"), "meta": sc.get("meta", False), "beats": beats, "items": items, "lines": lines,
-            "cams": cams, "reacts": reacts, "kaiMove": sc.get("presenter_move", True), "fx": sc.get("fx", True), "heroScale": sc.get("hero_scale", 1.3)}
+            "cams": cams, "reacts": reacts, "kaiMove": sc.get("presenter_move", True), "fx": sc.get("fx", True), "heroScale": sc.get("hero_scale", 1.3),
+            "bg": sc.get("bg", "grid"), "colors": sc.get("colors", {}), "W": W, "H": H, "wide": W > H}
     fill_gaps(items, dur)
     if sc.get("caption_y"): reel["capY"] = sc["caption_y"] if isinstance(sc["caption_y"], list) else [sc["caption_y"]] * 2
     fl = []
@@ -202,11 +211,13 @@ def build(sc, tm, work):
             if o["until"] - o["at"] > hold + .05: print(f'  ! held {o["until"] - o["at"]:.1f}s: {o["type"]} at {o["at"]:.2f}')
     if sc.get("character") == "none":
         reel["presenter"] = {"headX": .5, "headY": .31}; reel["nopres"] = True
-    elif sc.get("character", "kai") == "kai":
+    elif sc.get("character", "kai") in ("kai", "maya"):
         ws = [w for l in tm["lines"] for w in l["words"]]
         words = [{"t": w["t"], "d": r3((ws[k + 1]["t"] if k + 1 < len(ws) else w["t"] + .3) - w["t"]), "n": len(re.sub(r"[^A-Za-z0-9]", "", w["w"]))} for k, w in enumerate(ws)]
+        P = sc.get("presenter", {}); wide = W > H
         reel["avatar"] = {"poses": [{"t0": t0, "pose": b.get("pose", "talk")} for b, (t0, _) in zip(sc["beats"], bounds)], "words": words,
-                          "top": sc.get("presenter", {}).get("y", 1060), "scale": sc.get("presenter", {}).get("scale", 1), "colors": sc.get("avatar_colors", {})}
+                          "top": P.get("y", 470 if wide else 1060), "scale": P.get("scale", .8 if wide else 1), "cx": P.get("x", 1530 if wide else 540),
+                          "look": "female" if sc.get("character") == "maya" else "male", "colors": sc.get("avatar_colors", {})}
         reel["presenter"] = {"headX": .5, "headY": .31}
     else:
         cdir = char_dir(sc)
@@ -238,12 +249,12 @@ def presenter(sc, bounds, dur):
     """the avatar at the bottom. Default "kai": the engine's own code-drawn presenter (engine/avatar.js), posed per
     beat. "character": "path/to/folder" uses your own video character (one transparent gesture clip per pose, looped);
     "character": "none" leaves the presenter out."""
-    if sc.get("character", "kai") in ("kai", "none"):
+    if sc.get("character", "kai") in ("kai", "maya", "none"):
         return None, '<div id="pres"><div id="presin"></div></div>'
     cdir = char_dir(sc)
     c = json.load(open(os.path.join(cdir, "character.json"))); clips, alias = c["clips"], c.get("aliases", {})
-    cw, ch = c.get("canvas", [1800, 1080]); P = sc.get("presenter", {})
-    W = P.get("width", 1500); x = P.get("x", 540 - W / 2); y = P.get("y", 1150)
+    cw, ch = c.get("canvas", [1800, 1080]); P = sc.get("presenter", {}); FW, FH = size(sc); wide = FW > FH
+    W = P.get("width", 900 if wide else 1500); x = P.get("x", (1560 if wide else 540) - W / 2); y = P.get("y", 520 if wide else 1150)
     vids, k = "", 0
     for i, ((t0, t1), b) in enumerate(zip(bounds, sc["beats"])):
         name = b.get("pose", "talk"); name = alias.get(name, name); name = name if name in clips else c.get("default", "talk")
@@ -273,11 +284,11 @@ def page(sc, tm, work):
         vids += (f'<video class="clip" id="hv{k}" src="{o["src"]}" muted playsinline data-start="{r3(a)}" data-duration="{d}" '
                  f'data-media-start="{r3(ms)}" data-track-index="{4 + k}"></video>')
     if src: shutil.copy(src, os.path.join(pg, "assets", os.path.basename(src)))
-    dur = tm["duration"]
+    dur = tm["duration"]; FW, FH = size(sc); wide_cls = ' class="wide"' if FW > FH else ""
     mono_css = '<style>@font-face{font-family:MONO;src:url(fonts/ObelMono-VF.woff2) format("woff2");font-weight:100 900}</style>' if sc.get("mono") == "obel" else ""
     html = f'''<!doctype html><html lang="en"><head><meta charset="utf-8"/><title>{sc["_name"]}</title>
 <link rel="stylesheet" href="style.css"/>{mono_css}<script src="gsap.min.js"></script></head><body>
-<div id="root" data-composition-id="reel" data-start="0" data-duration="{dur}" data-width="1080" data-height="1920" data-fps="30">
+<div id="root" data-composition-id="reel" data-start="0" data-duration="{dur}" data-width="{FW}" data-height="{FH}" data-fps="30"{wide_cls}>
  <div id="stage"><div id="dots"></div><div id="glow"></div><div id="flood"></div>
   <div id="meta"></div><div id="cap"></div><div id="heroes"></div>{pres}<div id="wipe"></div></div>
  <div id="vids" style="display:none">{vids}</div>
@@ -294,17 +305,17 @@ def render(work, out):
     if r.returncode or not os.path.exists(out): print(r.stdout[-1500:], r.stderr[-1500:]); raise SystemExit("render failed")
 
 
-def board(work, bounds, out):
+def board(work, bounds, out, wide=False):
     """frames sheet: the middle of every beat."""
     from PIL import Image
-    vid = os.path.join(work, "silent.mp4"); tiles = []
+    vid = os.path.join(work, "silent.mp4"); tiles = []; tw, th = (480, 270) if wide else (270, 480)
     for t0, t1 in bounds:
         p = os.path.join(work, "b.png")
-        subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{(t0 + t1) / 2:.2f}", "-i", vid, "-frames:v", "1", "-vf", "scale=270:480", p])
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-ss", f"{(t0 + t1) / 2:.2f}", "-i", vid, "-frames:v", "1", "-vf", f"scale={tw}:{th}", p])
         tiles.append(Image.open(p).convert("RGB"))
-    cols = min(8, len(tiles)); rows = (len(tiles) + cols - 1) // cols
-    S = Image.new("RGB", (cols * 270, rows * 480), "white")
-    for k, t in enumerate(tiles): S.paste(t, ((k % cols) * 270, (k // cols) * 480))
+    cols = min(5 if wide else 8, len(tiles)); rows = (len(tiles) + cols - 1) // cols
+    S = Image.new("RGB", (cols * tw, rows * th), "white")
+    for k, t in enumerate(tiles): S.paste(t, ((k % cols) * tw, (k // cols) * th))
     S.save(out, quality=88)
 
 
@@ -330,7 +341,7 @@ def main():
     if intro: cues.insert(0, [0.0, "file:" + intro["sound"], intro["gain"]])
     print("render ..."); render(work, os.path.join(work, "silent.mp4"))
     if cmd == "board":
-        out = os.path.join(sc["_dir"], sc["_name"] + "-frames.jpg"); board(work, bounds, out); print("frames:", out); return
+        out = os.path.join(sc["_dir"], sc["_name"] + "-frames.jpg"); board(work, bounds, out, size(sc)[0] > size(sc)[1]); print("frames:", out); return
     dur, mw = tm["duration"], work
     print("mix ..."); lufs, n = sound.mix(mw, cues, dur, {"music": sc.get("music", {"style": "none"}), "levels": {"sfx": sc.get("sfx_level", -26), "music": sc.get("music", {}).get("level", -33)}})
     out = os.path.join(sc["_dir"], sc["_name"] + ".mp4")

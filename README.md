@@ -1,6 +1,6 @@
 # beatreel
 
-Make vertical explainer videos (1080×1920, 30 fps) from a JSON script. You write the lines; beatreel speaks them,
+Make explainer videos from a JSON script, vertical (1080×1920) or wide (1920×1080), 30 fps. You write the lines; beatreel speaks them,
 puts the words on screen as they are said, and gives every idea its own animated scene, with a talking presenter
 at the bottom.
 
@@ -10,7 +10,8 @@ script.json  →  voice (Kokoro, offline)  →  word timings  →  HTML + GSAP p
 
 It runs entirely on your machine. No accounts, no API keys, no cloud voice.
 
-Sample renders: [docs/coffee.mp4](docs/coffee.mp4), [docs/cold-battery.mp4](docs/cold-battery.mp4) and
+Sample renders: [docs/coffee.mp4](docs/coffee.mp4) (9:16, Kai), [docs/cold-battery.mp4](docs/cold-battery.mp4)
+(9:16, Maya), [docs/coffee-16x9.mp4](docs/coffee-16x9.mp4) (16:9, plain background, custom colour) and
 [docs/tour.mp4](docs/tour.mp4) (a catalogue of the scenes).
 
 ## What it has
@@ -23,13 +24,16 @@ Sample renders: [docs/coffee.mp4](docs/coffee.mp4), [docs/cold-battery.mp4](docs
   tick, code that scrolls, charts, gauges, a world map, dominoes, status boards, file conversions, star bursts,
   follow cards ...). Every piece lands on the word that names it (`"at": "word:checklist"`), entrances vary
   from shot to shot, impacts shake the frame and throw sparks, and every scene is scaled to fit the frame.
-- **Kai**, an original presenter drawn in code, on screen the whole video: lip movement on every word, blinks,
+- **Two presenters drawn in code**: Kai and Maya (`"character": "maya"`), on screen the whole video: lip movement on every word, blinks,
   25+ poses and moods (`docs/kai-poses.jpg`), and he moves between left, centre and right along the bottom.
   Recolour him, swap in your own character, or leave him out.
 - **Sound effects built in**: 12 short code-made sounds (pops, ticks, a whoosh, an impact, typing, chimes) in
   `engine/sfx/`, placed on every entrance, tick and impact. `"sfx": false` turns them off.
-- **Three looks**: `studio` (plain white, default), `night` (dark), `paper` (plain base). All colours are CSS
-  variables you can change.
+- **Two formats**: `"format": "9:16"` (default, Reels/Shorts/TikTok) or `"16:9"` (YouTube): caption on top,
+  scenes on the left, the presenter bottom right.
+- **Background and colours**: `"bg": "grid"` (default, a faint grid on white) or `"plain"`, and any colours you
+  like with `"colors": {"accent": "#0e9f6e", "bg": "#fffaf2"}`. Themes: `studio` (light, default), `night`
+  (dark), `paper`.
 - **Optional extras**: a quiet code-made music bed (`"music": {"style": "soft"}`), any of earshot's 250+
   sounds through [earshot](https://github.com/Leonxlnx/earshot) (`"sfx_id"` on a scene), your own intro sound, pre-rendered clips with
   transparency (for example 3D shots).
@@ -42,7 +46,7 @@ Sample renders: [docs/coffee.mp4](docs/coffee.mp4), [docs/cold-battery.mp4](docs
 - No stock footage or image generation: it animates what you give it.
 - No voice cloning, and no cloud TTS.
 - No auto-posting to Instagram, TikTok or YouTube.
-- Vertical 1080×1920 only.
+- Two sizes only: 1080×1920 and 1920×1080.
 
 ## Install
 
@@ -93,7 +97,8 @@ the next, each starting on its `at`. The full reference (every scene type and ke
 | | |
 |---|---|
 | `examples/coffee/` | 21 s, two shots per beat, Kai on every frame, sound effects |
-| `examples/cold-battery/` | 23 s, a different voice (`am_michael`) and the music bed |
+| `examples/coffee/coffee-16x9.json` | the same script as a 16:9 video, plain background, green accent |
+| `examples/cold-battery/` | 23 s, Maya with a female voice (`af_heart`) and the music bed |
 | `examples/tour/` | 34 s, no presenter, one beat per scene type: a quick catalogue of what the engine draws |
 
 ## Voice
@@ -102,21 +107,26 @@ the next, each starting on its `at`. The full reference (every scene type and ke
 "voice": {"name": "af_heart", "speed": 1.0, "say": {"SQL": "sequel", "Nguyen": "/wˈɪn/"}}
 ```
 
-`name` is any Kokoro voice: American `af_heart`, `af_bella`, `af_nicole`, `am_michael`, `am_fenrir` ...,
+By default Kai speaks with `am_michael` and Maya with `af_heart`. `name` is any Kokoro voice: American `af_heart`, `af_bella`, `af_nicole`, `am_michael`, `am_fenrir` ...,
 British `bf_emma`, `bm_george` ... (the full list is on the
 [Kokoro model card](https://huggingface.co/hexgrad/Kokoro-82M/blob/main/VOICES.md)). `say` fixes a word for this
 script, either as plain respelling or as phonemes between slashes; `core/lexicon.json` holds fixes for every script.
 After each run, `build/<name>/pronounce.txt` lists every word the voice guessed.
 
-## Look
+## Format and look
 
-`"theme": "studio" | "night" | "paper"`. To make your own, copy the `#stage.t-studio` block at the end of
-`engine/style.css` and change the variables (`--bg`, `--ink`, `--accent`, `--card` ...), then use
+```json
+"format": "16:9", "bg": "plain", "colors": {"accent": "#0e9f6e", "hi": "#f59e0b", "bg": "#ffffff", "ink": "#14142b"}
+```
+
+`format` is `"9:16"` (default) or `"16:9"`. `bg` is `"grid"` (default) or `"plain"`. `colors` sets any theme variable:
+`accent` (highlights, buttons, stamps), `hi` (second colour), `bg`, `ink` (text), `card`, `bad` (alarms). For a
+whole new look, copy the `#stage.t-studio` block at the end of `engine/style.css`, change it, and use
 `"theme": "yourname"`.
 
 ## Presenter
 
-- Kai (default): `"pose"` per beat, `"kai": "left" | "center" | "right"` per beat (otherwise he moves on his
+- Kai (default) or Maya (`"character": "maya"`, the same poses and moods, long hair, her own palette): `"pose"` per beat, `"kai": "left" | "center" | "right"` per beat (otherwise he moves on his
   own; `"presenter_move": false` keeps him centred), `"avatar_colors": {"shirt": "#2d4f8a", "hair": "#5a3a22", ...}` to recolour,
   `"presenter": false` on a beat to hide him for it, `"character": "none"` to leave him out entirely.
 - Your own character: `"character": "path/to/folder"` with a `character.json` and one transparent video holding a

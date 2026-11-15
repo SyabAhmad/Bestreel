@@ -17,7 +17,9 @@
   const on = (el, t) => { tl.set(el, { attr: { 'data-on': 0 } }, 0); tl.set(el, { attr: { 'data-on': 1 } }, t); };
   // seeded random, so a frame always renders the same
   let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  st.className = 't-' + (R.theme || 'studio') + (R.flashes ? ' flashmode' : '');
+  st.className = 't-' + (R.theme || 'studio') + ' bg-' + (R.bg || 'grid') + (R.wide ? ' wide' : '') + (R.flashes ? ' flashmode' : '');
+  Object.entries(R.colors || {}).forEach(([k, v]) => st.style.setProperty('--' + k, v));   // "colors": {"accent": "#0a7", "bg": "#fff8ee", ...}
+  const FW = R.W || 1080, FH = R.H || 1920, CX = R.wide && !R.nopres ? 700 : FW / 2;
   const POP = R.theme !== 'paper';   // studio / night: words pop up; paper: words fade in grey and turn ink
   if (R.nopres) document.getElementById('pres').style.display = 'none';
 
@@ -499,13 +501,14 @@
     const e = $('div', 'h', parent), inner = $('div', '', e); const t = o.at, u = o.until ?? owner?.until ?? R.dur;
     (B[o.type] || B.card)(o, inner, t);
     // zone for a scene: under the caption, above Kai's head (or the whole frame without a presenter)
-    const Z = R.nopres ? [300, 1700] : [300, 1235], ZC = (Z[0] + Z[1]) / 2;
-    e.style.left = (o.x ?? (owner ? (owner.w || 920) / 2 : 540)) + 'px'; e.style.top = (o.y ?? (owner ? (owner.h || 760) / 2 : ZC)) + 'px'; e.style.zIndex = o.z ?? 1;
+    const Z = R.wide ? [200, 1020] : R.nopres ? [300, 1700] : [300, 1235], ZC = (Z[0] + Z[1]) / 2;
+    e.style.left = (o.x ?? (owner ? (owner.w || 920) / 2 : CX)) + 'px'; e.style.top = (o.y ?? (owner ? (owner.h || 760) / 2 : ZC)) + 'px'; e.style.zIndex = o.z ?? 1;
     let S1 = (o.scale || 1) * (owner ? 1 : (R.heroScale ?? 1.3));
     if (!owner && o.fit !== false) {   // keep it inside the frame: scale down to fit 960 px wide and the zone's height
-      const w = inner.offsetWidth, h = inner.offsetHeight, x = o.x ?? 540;
-      const maxW = Math.min(980, 2 * Math.min(x, 1080 - x) - 60), maxH = (Z[1] - Z[0]) * 1.02;
-      if (w && h) { S1 = Math.min(S1, maxW / w, maxH / h);
+      const w = inner.offsetWidth, h = inner.offsetHeight, x = o.x ?? CX, xr = R.wide && !R.nopres ? 1330 : FW - 30;
+      const maxW = Math.min(R.wide ? 1180 : 980, 2 * Math.min(x - 30, xr - x)), maxH = (Z[1] - Z[0]) * 1.02;
+      const slack = ['num', 'scramble', 'stamp', 'sticker', 'wordmark', 'starburst'].includes(o.type) ? .8 : .97;   // big type: room for wider webfont glyphs
+      if (w && h) { S1 = Math.min(S1, maxW * slack / w, maxH / h);
         if (o.y == null) { const half = h * S1 / 2; e.style.top = Math.min(Math.max(ZC, Z[0] + half), Z[1] - half) + 'px'; } } }
     gsap.set(e, { xPercent: -50, yPercent: -50, rotation: o.rot || 0, scale: S1 });
     vis(e, t, u);
@@ -546,7 +549,7 @@
       if (want) tl.fromTo(ps, { y: 900, autoAlpha: 1 }, { y: 0, autoAlpha: 1, duration: .45, ease: 'back.out(1.2)', immediateRender: false }, b.t0 - .05);
       else { tl.to(ps, { y: 900, duration: .35, ease: 'power3.in' }, b.t0 - .1); tl.set(ps, { autoAlpha: 0 }, b.t0 + .26); } }); }
   // Kai walks along the bottom: "kai": "left" | "center" | "right" per beat, or the default rhythm
-  if (!R.flashes && !R.nopres) { const X = { left: -150, center: 0, right: 150 }, AUTO = ['center', 'left', 'center', 'right']; let cur = 0;
+  if (!R.flashes && !R.nopres) { const X = R.wide ? { left: -120, center: 0, right: 40 } : { left: -150, center: 0, right: 150 }, AUTO = ['center', 'left', 'center', 'right']; let cur = 0;
     R.beats.forEach((b, k) => { const want = X[b.spot] ?? (R.kaiMove === false ? 0 : X[AUTO[k % AUTO.length]]);
       if (!k) { gsap.set(pres, { x: want }); tl.set(pres, { x: want }, 0); cur = want; return; }
       if (want !== cur) { tl.to(pres, { x: want, duration: .6, ease: 'power3.inOut' }, b.t0 - .2); tl.fromTo(pin, { rotation: 0 }, { rotation: want > cur ? 3 : -3, duration: .3, yoyo: true, repeat: 1, ease: 'sine.inOut', transformOrigin: '50% 100%', immediateRender: false }, b.t0 - .2); cur = want; } }); }

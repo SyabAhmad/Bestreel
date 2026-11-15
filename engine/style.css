@@ -12,6 +12,7 @@
 
 html, body { margin: 0; background: #000; }
 #root { position: relative; width: 1080px; height: 1920px; overflow: hidden; }
+#root.wide { width: 1920px; height: 1080px; }
 #stage { position: absolute; inset: 0; background: var(--bg); font-family: SG, sans-serif; color: var(--ink); }
 #dots { position: absolute; inset: 0; background-image: radial-gradient(var(--dot) 1.3px, transparent 1.5px); background-size: 7px 7px; }
 .t-night #glow { position: absolute; left: -200px; right: -200px; bottom: -300px; height: 1100px; background: radial-gradient(closest-side, var(--hi), transparent); opacity: .22; }
@@ -586,10 +587,16 @@ html, body { margin: 0; background: #000; }
 .t-studio .dc[data-on="2"] { background: #1e1b4b; box-shadow: none; }
 .t-studio .dl2.r1 { background: var(--accent); } .t-studio .dl2.r2 { background: #1e1b4b; box-shadow: none; }
 
-/* studio: a plain white page */
-#stage.t-studio { background-image: none; }
+/* background: "bg": "grid" (default) or "plain" */
+#stage.t-studio.bg-grid { --grid: rgba(20,20,43,.055); }
+#stage.bg-plain { background-image: none; }
 .t-studio #glow { display: none; }
 .t-studio .card, .t-studio .shot, .t-studio .brw, .t-studio .gauge { border: 2px solid #e8e9f2; }
 /* sparks on impacts */
 .spk3 { position: absolute; width: 18px; height: 18px; margin: -9px; border-radius: 50%; background: var(--accent); z-index: 40; pointer-events: none; }
 .spk3.b { background: var(--hi); width: 12px; height: 12px; margin: -6px; } .spk3.c { background: transparent; border: 4px solid var(--accent); width: 22px; height: 22px; margin: -11px; }
+
+/* 16:9 ("format": "16:9"): caption across the top, scenes on the left two thirds, the presenter bottom right */
+.wide #cap { left: 110px; right: 110px; top: 54px; }
+:is(.t-studio, .t-night).wide .cl, :is(.t-studio, .t-night).wide .cl .w.it { font-size: 58px; }
+.wide #meta { top: 22px; }

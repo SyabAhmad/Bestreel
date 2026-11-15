@@ -2,7 +2,7 @@
  "name": "cold-battery",
  "theme": "studio",
  "voice": {
-  "name": "am_michael",
+  "name": "af_heart",
   "speed": 1.0
  },
  "music": {
@@ -223,5 +223,6 @@
     }
    ]
   }
- ]
+ ],
+ "character": "maya"
 }

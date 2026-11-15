@@ -1,6 +1,6 @@
 ---
 name: beatreel
-description: Make vertical talking-avatar explainer videos (1080x1920) from a JSON script - Kokoro voice, word-synced captions, one animated scene per idea, a presenter at the bottom, rendered with HyperFrames.
+description: Make talking-avatar explainer videos (9:16 or 16:9) from a JSON script - Kokoro voice, word-synced captions, one animated scene per idea, a presenter at the bottom, rendered with HyperFrames.
 ---
 
 # beatreel
@@ -47,10 +47,11 @@ Work happens in `build/<name>/` next to the script (voice is cached until the li
 }
 ```
 
-**Top level**: `name`, `theme` (`studio` default, `night`, `paper`, or your own), `voice` {name, speed, say,
+**Top level**: `name`, `format` ("9:16" default, "16:9"), `bg` ("grid" default, "plain"), `colors` {accent, hi,
+bg, ink, card, bad}, `theme` (`studio` default, `night`, `paper`, or your own), `voice` {name, speed, say,
 natural}, `music` {style: "soft" | "beat" | "none" (default), level (dB, default -33), bpm, transpose, duck_db},
 `sfx` (false = no sound effects; on by default, from `engine/sfx/`), `sfx_level` (default -26), `intro` {sound: "file.wav", gain, lead},
-`character` ("kai" default, "none", or a folder path), `avatar_colors`, `presenter` {scale, y},
+`character` ("kai" default, "maya", "none", or a folder path), `avatar_colors`, `presenter` {scale, y},
 `caption_words` (words per caption block, default 7), `caption_y` (y px, or [with presenter, without]),
 `hero_scale` (every scene, default 1.3; scenes are scaled down to fit the frame anyway), `fx` (false = no
 auto entrances, shakes, sparks), `presenter_move` (false = Kai stays centred), `hero_x`, `max_hold`, `meta` (true = slug row on top) + `counter`
@@ -74,7 +75,10 @@ earshot id when earshot is installed), `tilt` [rx, ry], `push` (slow zoom to thi
 `icon` + `color` wherever an icon is shown. Icons are Iconify names (`lucide:key`, `simple-icons:github`,
 `logos:python`, `fluent-emoji-flat:rocket`); never use emoji characters.
 
-Safe area: keep scenes within x 100-980, y 120-1380 when the video will be posted to a platform with UI overlays.
+Layout: 9:16 puts the caption on top, the scene in y 300-1235 and the presenter at the bottom; 16:9 puts the
+caption on top, the scene on the left (centre x 700, y 200-1020) and the presenter bottom right. Scenes are scaled
+to fit their zone. For Reels, keep scenes clear of the platform's buttons on the right and the name row at the
+bottom.
 
 ## Scenes
 
@@ -144,7 +148,12 @@ Safe area: keep scenes within x 100-980, y 120-1380 when the video will be poste
 
 `examples/tour/` shows most of them one per beat.
 
-## Presenter (Kai)
+## Presenter (Kai or Maya)
+
+Kai is the default. **When someone asks for a female presenter**, set `"character": "maya"`: the same rig and
+poses with long hair, lashes, lips, earrings and her own palette, and the default voice switches to a female one
+(`af_heart`; other female voices: `af_bella`, `af_nicole`, `af_sarah`, `bf_emma`, `bf_isabella`). Recolour either
+with `avatar_colors`. Both stay on screen the whole video and move left / centre / right (`kai` per beat).
 
 Poses: talk, calm, smile, explain/present, both, hi/wave, point_up, point_side, one, count, count3, shrug, shocked,
 gasp, oops, excited, shh, thumbs_up, think, wait, stop, facepalm, clasp, arms_crossed. Moods on the talk arms:

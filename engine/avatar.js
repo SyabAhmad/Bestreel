@@ -8,14 +8,18 @@
 (function () {
   const R = window.REEL, A = R.avatar; if (!A) return;
   const tl = window.__timelines.reel, NS = 'http://www.w3.org/2000/svg';
+  const FEM = A.look === 'female';   // "character": "maya": the same rig with long hair, lashes, lips and her own palette
   const C = Object.assign({ skin: '#cf9a74', skinSh: '#b57f5b', skinLo: '#a8724f', ear: '#c48d68', line: '#7a4a31',
     hair: '#1f1714', hairHi: '#3b2c25', fade: '#5a4135', brow: '#241a16',
     shirt: '#4d6b5d', shirtSh: '#3c5549', shirtHi: '#5c7c6d', cuff: '#6f8f80', tee: '#f7f4ee', teeSh: '#e2ddd3', cord: '#efe9dc',
-    eye: '#ffffff', iris: '#2a1a12', mouth: '#5a1f1c', tongue: '#e2685f', lip: '#9c5a44', shadow: '#1e1b4b', mark: '#4f46e5' }, A.colors || {});
+    eye: '#ffffff', iris: '#2a1a12', mouth: '#5a1f1c', tongue: '#e2685f', lip: '#9c5a44', shadow: '#1e1b4b', mark: '#4f46e5' },
+    FEM ? { skin: '#e3ad86', skinSh: '#c99069', skinLo: '#bb805b', ear: '#daa27c', line: '#8a5638', hair: '#2b1a14', hairHi: '#4a3024', brow: '#2b1a14',
+      shirt: '#b8573f', shirtSh: '#964431', shirtHi: '#c96c55', cuff: '#d4826c', mouth: '#7a2633', lip: '#c4566a', iris: '#3a2416', earring: '#e8b54a' } : {},
+    A.colors || {});
   const W = 1080, H = 900;
   const pres = document.getElementById('pres'), pin = document.getElementById('presin');
   const SC = A.scale ?? 1;
-  pres.style.cssText = `left:${540 - W * SC / 2}px;top:${A.top ?? 1060}px;width:${W * SC}px;height:${H * SC}px`;
+  pres.style.cssText = `left:${(A.cx ?? 540) - W * SC / 2}px;top:${A.top ?? 1060}px;width:${W * SC}px;height:${H * SC}px`;
   const svg = document.createElementNS(NS, 'svg'); svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.setAttribute('width', W * SC); svg.setAttribute('height', H * SC);
   svg.style.overflow = 'visible'; pin.appendChild(svg);
   const el = (tag, attrs, parent) => { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); (parent || svg).appendChild(e); return e; };
@@ -44,6 +48,9 @@
   const shArm = [0, 1].map(() => el('path', { d: '', fill: 'none', stroke: 'url(#avdots)', 'stroke-width': 78, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, sh));
   const shHand = [0, 1].map(() => el('circle', { r: 48, fill: 'url(#avdots)' }, sh));
 
+  // ---------- Maya's long hair, behind the head and shoulders
+  const backHair = g(fig, {});
+  if (FEM) el('path', { d: 'M418 300 C404 196 464 132 540 132 C616 132 676 196 662 300 C672 420 700 560 716 660 C660 690 600 676 584 610 L496 610 C480 676 420 690 364 660 C380 560 408 420 418 300 Z', fill: C.hair }, backHair);
   // ---------- body: open zip hoodie over a white tee
   const body = g(fig, {});
   el('path', { d: 'M446 560 C428 486 462 450 502 446 L578 446 C618 450 652 486 634 560 C600 528 480 528 446 560 Z', fill: C.shirtSh }, body);   // hood behind the neck
@@ -63,13 +70,17 @@
   el('path', { d: 'M500 470 C520 492 560 492 580 470 L580 500 C560 512 520 512 500 500 Z', fill: C.skinLo, opacity: .7 }, body);
   el('path', { d: 'M494 522 C514 548 566 548 586 522', fill: 'none', stroke: C.teeSh, 'stroke-width': 7, 'stroke-linecap': 'round' }, body);
 
+  // side locks fall over the shoulders, in front of the hoodie, behind the face
+  if (FEM) { el('path', { d: 'M436 292 C410 380 412 500 438 604 C452 650 494 652 502 616 C474 560 466 470 472 380 Z', fill: C.hair }, body);
+    el('path', { d: 'M644 292 C670 380 668 500 642 604 C628 650 586 652 578 616 C606 560 614 470 608 380 Z', fill: C.hair }, body);
+    el('path', { d: 'M446 360 C436 440 440 520 456 590 M634 360 C644 440 640 520 624 590', fill: 'none', stroke: C.hairHi, 'stroke-width': 7, 'stroke-linecap': 'round' }, body); }
   // ---------- head
   const head = g(fig, {});
   const earL = el('ellipse', { cx: 430, cy: 338, rx: 17, ry: 27, fill: C.ear }, head), earR = el('ellipse', { cx: 650, cy: 338, rx: 17, ry: 27, fill: C.ear }, head);
   el('path', { d: HEAD, fill: C.skin }, head);
   const hsh = g(head, { 'clip-path': 'url(#avheadclip)' });
   el('path', { d: 'M660 180 L660 490 L560 490 C624 452 634 400 630 330 C628 270 624 220 600 180 Z', fill: C.skinSh, opacity: .55 }, hsh);   // shaded side of the face
-  el('rect', { x: 428, y: 250, width: 20, height: 76, fill: C.fade, opacity: .75 }, hsh); el('rect', { x: 632, y: 250, width: 20, height: 76, fill: C.fade, opacity: .85 }, hsh);  // fade at the temples
+  if (!FEM) { el('rect', { x: 428, y: 250, width: 20, height: 76, fill: C.fade, opacity: .75 }, hsh); el('rect', { x: 632, y: 250, width: 20, height: 76, fill: C.fade, opacity: .85 }, hsh); }  // fade at the temples
   const feat = g(head, {});
   el('ellipse', { cx: 470, cy: 388, rx: 20, ry: 11, fill: 'rgba(230,110,90,.20)' }, feat); el('ellipse', { cx: 606, cy: 388, rx: 20, ry: 11, fill: 'rgba(230,110,90,.20)' }, feat);
   el('path', { d: 'M544 340 C544 362 554 376 556 384 C552 394 534 394 526 388 C536 388 544 384 544 378 Z', fill: C.skinSh }, feat);   // nose
@@ -79,17 +90,24 @@
     const lid = el('rect', { fill: C.skinSh }, inner);
     const line = el('path', { d: '', fill: 'none', stroke: C.brow, 'stroke-width': 5.5, 'stroke-linecap': 'round' }, e);
     return { x, y, e, white, pupil, glint, lid, line, clip: document.getElementById('aveyec' + k) }; });
-  const brows = [0, 1].map(() => el('path', { d: '', fill: 'none', stroke: C.brow, 'stroke-width': 13, 'stroke-linecap': 'round' }, feat));
+  const brows = [0, 1].map(() => el('path', { d: '', fill: 'none', stroke: C.brow, 'stroke-width': FEM ? 9 : 13, 'stroke-linecap': 'round' }, feat));
   const mouth = g(feat, {});
   const mOpen = el('path', { d: '', fill: C.mouth }, mouth);
   const mIn = g(mouth, { 'clip-path': 'url(#avmouthclip)' });
   const teeth = el('rect', { fill: '#fff', rx: 3 }, mIn), tongue = el('ellipse', { ry: 13, fill: C.tongue }, mIn);
   const mLine = el('path', { d: '', fill: 'none', stroke: C.mouth, 'stroke-width': 6.5, 'stroke-linecap': 'round' }, mouth);
-  const mLip = el('path', { d: '', fill: 'none', stroke: C.skinSh, 'stroke-width': 5, 'stroke-linecap': 'round' }, mouth);
+  const mLip = el('path', { d: '', fill: 'none', stroke: FEM ? C.lip : C.skinSh, 'stroke-width': FEM ? 7 : 5, 'stroke-linecap': 'round' }, mouth);
   // hair: curly top, drawn over the forehead
-  el('path', { d: HAIR, fill: C.hair }, head);
+  if (FEM) {   // side-swept fringe, lashes, earrings
+    el('path', { d: 'M424 330 C410 240 442 170 506 152 C572 134 640 160 656 236 C662 270 658 304 652 334 C644 290 630 262 610 246 C574 262 520 262 470 236 C452 262 438 294 434 334 Z', fill: C.hair }, head);
+    el('path', { d: 'M470 236 C520 262 574 262 610 246 C590 214 548 196 506 198 C488 206 476 220 470 236 Z', fill: C.hair }, head);
+    el('path', { d: 'M486 186 C530 166 590 172 626 206 M456 230 C470 200 494 182 524 176', fill: 'none', stroke: C.hairHi, 'stroke-width': 8, 'stroke-linecap': 'round' }, head);
+    [[0, 1], [1, -1]].forEach(([k, s_]) => { const x0 = k ? 606 : 474; el('path', { d: `M${x0} 322 L${x0 - 12 * s_} 312 M${x0 + 2 * s_} 316 L${x0 - 6 * s_} 304`, fill: 'none', stroke: C.brow, 'stroke-width': 4.5, 'stroke-linecap': 'round' }, eyes[k].e); });
+    el('circle', { cx: 428, cy: 372, r: 9, fill: C.earring }, head); el('circle', { cx: 652, cy: 372, r: 9, fill: C.earring }, head);
+  }
+  if (!FEM) el('path', { d: HAIR, fill: C.hair }, head);
   const hh = g(head, { 'clip-path': 'url(#avhairclip)' });
-  el('path', { d: 'M470 176 C482 150 512 140 532 150 M548 140 C572 124 604 134 612 156 M630 170 C648 190 652 220 646 246 M452 214 C462 196 482 190 498 196 M520 190 C540 178 566 180 580 194 M600 200 C614 198 626 208 630 222',
+  if (!FEM) el('path', { d: 'M470 176 C482 150 512 140 532 150 M548 140 C572 124 604 134 612 156 M630 170 C648 190 652 220 646 246 M452 214 C462 196 482 190 498 196 M520 190 C540 178 566 180 580 194 M600 200 C614 198 626 208 630 222',
     fill: 'none', stroke: C.hairHi, 'stroke-width': 9, 'stroke-linecap': 'round' }, hh);
   // sweat drops + thought bubble
   const drop = 'M0 -16 C-9 0 -11 10 -4 16 C4 22 14 14 10 2 C8 -4 4 -10 0 -16 Z';
