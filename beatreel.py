@@ -58,7 +58,9 @@ def load(path):
 def speak(sc, work):
     os.makedirs(work, exist_ok=True)
     tj = os.path.join(work, "timing.json")
-    key = json.dumps([sc["scenes"], sc["voice"], sc.get("intro")], sort_keys=True)
+    import hashlib   # the voice is redone when the lines, the voice settings, or the voice code / lexicon change
+    code = hashlib.sha1(b"".join(open(os.path.join(HERE, "core", f), "rb").read() for f in ("voice.py", "pronounce.py", "lexicon.json"))).hexdigest()
+    key = json.dumps([sc["scenes"], sc["voice"], sc.get("intro"), code], sort_keys=True)
     kf = os.path.join(work, "voice.key")
     if os.path.exists(tj) and os.path.exists(kf) and open(kf).read() == key:
         return json.load(open(tj))

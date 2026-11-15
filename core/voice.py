@@ -10,6 +10,9 @@ from scipy.signal import resample_poly
 
 SR = 48000
 DEFAULT_VOICE = "af_heart"   # any Kokoro voice: af_*/am_* (US), bf_*/bm_* (UK); see README
+DEFAULT_SPEED = 1.1          # Kokoro at 1.0 reads like an audiobook; short-form talking pace sits around 1.05-1.15
+VOICE_SPEED = {"am_michael": 1.15}   # voices that read slower than the rest get a little more, for ~185-200 words a minute
+GAP_FIRST, GAP_SCENE, GAP_LINE = 0.12, 0.2, 0.09   # silence before the first sentence, before a new beat, between sentences
 MODEL_DIRS = [os.environ.get("BEATREEL_TTS", ""), os.path.expanduser("~/.cache/beatreel/tts")]
 
 def _model():
@@ -68,7 +71,7 @@ def silent(script, work):
 def speak(script, work):
     if script.get("voice") is False: return silent(script, work)
     k = _model(); v_cfg = script.get("voice", {})
-    voice, speed, lang = v_cfg.get("name", DEFAULT_VOICE), v_cfg.get("speed", 1.0), v_cfg.get("lang", "en-us")
+    voice, speed, lang = v_cfg.get("name", DEFAULT_VOICE), v_cfg.get("speed", VOICE_SPEED.get(v_cfg.get("name", DEFAULT_VOICE), DEFAULT_SPEED)), v_cfg.get("lang", "en-us")
     say_map = v_cfg.get("say", {})          # pronunciation fixes, whole words: {"SQL": "sequel"} or {"Cindy": "/sˈɪndi/"}
     natural = v_cfg.get("natural", True)
     use_misaki = v_cfg.get("g2p", "misaki") == "misaki" and lang == "en-us"
@@ -102,7 +105,7 @@ def speak(script, work):
         if not natural or txt.endswith((".", "?", "!", ":")) or (last_in_scene and not runs_on) or nxt is None: groups.append(cur); cur = []
     for gi, grp in enumerate(groups):
         si0 = allv[grp[0]][0]; first_of_scene = allv[grp[0]][1] == 0
-        gap = 0.2 if gi == 0 else (0.24 if first_of_scene else (0.12 if natural else 0.06))
+        gap = v_cfg.get("gap_first", GAP_FIRST) if gi == 0 else (v_cfg.get("gap_beat", GAP_SCENE) if first_of_scene else (v_cfg.get("gap_line", GAP_LINE) if natural else 0.06))
         if first_of_scene: gap += script["scenes"][si0].get("pause_before", 0)   # a beat of silence before the scene
         texts = [plain(allv[q][2]) for q in grp]
         a = synth(" ".join(texts)); t += gap; n = len(a)

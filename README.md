@@ -128,7 +128,7 @@ the next, each starting on its `at`. The full reference (every scene type and ke
 ## Voice
 
 ```json
-"voice": {"name": "af_heart", "speed": 1.0, "say": {"SQL": "sequel", "Nguyen": "/wˈɪn/"}}
+"voice": {"name": "af_heart", "speed": 1.1, "say": {"SQL": "sequel", "Nguyen": "/wˈɪn/"}}
 ```
 
 By default Kai speaks with `am_michael` and Maya with `af_heart`. `name` is any Kokoro voice: American `af_heart`, `af_bella`, `af_nicole`, `am_michael`, `am_fenrir` ...,
@@ -136,6 +136,15 @@ British `bf_emma`, `bm_george` ... (the full list is on the
 [Kokoro model card](https://huggingface.co/hexgrad/Kokoro-82M/blob/main/VOICES.md)). `say` fixes a word for this
 script, either as plain respelling or as phonemes between slashes; `core/lexicon.json` holds fixes for every script.
 After each run, `build/<name>/pronounce.txt` lists every word the voice guessed.
+
+The voice reads whole sentences in one breath (so the tone runs on naturally across caption lines) at a
+short-form pace, about 185-200 words a minute: `speed` 1.1 by default (1.15 for `am_michael`, who reads slower;
+1.0 is audiobook pace, 1.2 is fast). Pauses are short: 0.2 s before a new
+beat and 0.09 s between sentences; change them with `gap_beat` and `gap_line`. `core/lexicon.json` already knows
+about 80 brand and tech names (NVIDIA, GitHub, ChatGPT, DeepSeek, macOS, Kubernetes, ...).
+
+Writing tips that make it sound like a person: short sentences (8-14 words), contractions ("it's", "you'll"),
+numbers written the way you'd say them ("about half", "five hours"), and a comma where you'd take a breath.
 
 ## Format and look
 

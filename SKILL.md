@@ -53,8 +53,8 @@ Run `bash <this folder>/setup.sh` once if `.venv` doesn't exist here yet. Step-b
 ```
 
 **Top level**: `name`, `format` ("9:16" default, "16:9"), `bg` ("grid" default, "plain"), `colors` {accent, hi,
-bg, ink, card, bad}, `theme` (`studio` default, `night`, `paper`, or your own), `voice` {name, speed, say,
-natural}, `music` {style: "soft" | "beat" | "none" (default), level (dB, default -33), bpm, transpose, duck_db},
+bg, ink, card, bad}, `theme` (`studio` default, `night`, `paper`, or your own), `voice` {name, speed (default 1.1), say,
+gap_beat (0.2 s), gap_line (0.09 s), natural}, `music` {style: "soft" | "beat" | "none" (default), level (dB, default -33), bpm, transpose, duck_db},
 `sfx` (false = no sound effects; on by default, from `engine/sfx/`), `sfx_level` (default -26), `intro` {sound: "file.wav", gain, lead},
 `character` ("kai" default, "maya", "none", or a folder path), `avatar_colors`, `presenter` {scale, y},
 `caption_words` (words per caption block, default 7), `caption_y` (y px, or [with presenter, without]),

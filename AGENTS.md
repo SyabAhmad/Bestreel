@@ -39,6 +39,9 @@ one line which ones you used:
 - When a brand or product is named, show its logo (`"type": "logo"`, `"icon": "simple-icons:<brand>"`; find names
   with `./beatreel icons <word>`). Never use emoji characters as icons.
 - Mark 1-2 key words per line with `_word_` for the highlight.
+- Write for the ear: short sentences (8-14 words), contractions, numbers the way people say them ("about half",
+  "thirty-one thousand"), a comma where a speaker breathes, no parentheses or slashes. Keep the default
+  `speed` 1.1 unless the user asks for slower or faster (range 1.0-1.2).
 - Put the script in its own folder outside `examples/`, for example `videos/<name>/<name>.json`, with any images
   it uses next to it. Don't change files in `engine/` or `core/` unless the user asks for an engine change.
 
