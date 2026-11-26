@@ -130,7 +130,9 @@
     el('path', { d: 'M486 186 C530 166 590 172 626 206 M456 230 C470 200 494 182 524 176', fill: 'none', stroke: C.hairHi, 'stroke-width': 8, 'stroke-linecap': 'round' }, head);
     [[0, 1], [1, -1]].forEach(([k, s_]) => { const x0 = k ? 606 : 474;
       if (SARA) {
-        // lashes removed for now: evaluate the bare eye/iris first
+        // very small, subtle lashes
+        [[x0 - 4*s_, 328], [x0 + 2*s_, 326], [x0 + 8*s_, 324]].forEach(([bx, by]) =>
+          el('path', { d: `M${bx} ${by} L${bx - 6*s_} ${by - 7}`, fill: 'none', stroke: C.brow, 'stroke-width': 1.6, 'stroke-linecap': 'round', opacity: .85 }, eyes[k].e));
       } else {
         el('path', { d: `M${x0} 322 L${x0 - 12 * s_} 312 M${x0 + 2 * s_} 316 L${x0 - 6 * s_} 304`, fill: 'none', stroke: C.brow, 'stroke-width': 4.5, 'stroke-linecap': 'round' }, eyes[k].e);
       }
