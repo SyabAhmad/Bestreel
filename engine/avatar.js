@@ -80,6 +80,10 @@
     el('path', { d: 'M474 552 C504 592 576 592 606 552', fill: 'none', stroke: C.earring, 'stroke-width': 5, 'stroke-linecap': 'round' }, body);
     el('path', { d: 'M486 568 C512 600 568 600 594 568', fill: 'none', stroke: C.earring, 'stroke-width': 3, 'stroke-linecap': 'round', opacity: .8 }, body);
     [[500,578],[520,588],[540,592],[560,588],[580,578]].forEach(([x,y]) => el('circle', { cx: x, cy: y, r: 2.5, fill: C.earring }, body));
+    // central embroidered panel (Pashtun style)
+    el('path', { d: 'M520 600 L520 900 L560 900 L560 600 Z', fill: C.shirtSh, opacity: .4 }, body);
+    el('path', { d: 'M520 600 L520 900 M560 600 L560 900', fill: 'none', stroke: C.earring, 'stroke-width': 2.5 }, body);
+    [620,660,700,740,780,820,860].forEach(y => el('circle', { cx: 540, cy: y, r: 2.6, fill: C.earring }, body));
   } else {
     el('path', { d: 'M494 522 C514 548 566 548 586 522', fill: 'none', stroke: C.teeSh, 'stroke-width': 7, 'stroke-linecap': 'round' }, body);
   }
