@@ -80,10 +80,14 @@
     el('path', { d: 'M474 552 C504 592 576 592 606 552', fill: 'none', stroke: C.earring, 'stroke-width': 5, 'stroke-linecap': 'round' }, body);
     el('path', { d: 'M486 568 C512 600 568 600 594 568', fill: 'none', stroke: C.earring, 'stroke-width': 3, 'stroke-linecap': 'round', opacity: .8 }, body);
     [[500,578],[520,588],[540,592],[560,588],[580,578]].forEach(([x,y]) => el('circle', { cx: x, cy: y, r: 2.5, fill: C.earring }, body));
-    // central embroidered panel (Pashtun style)
-    el('path', { d: 'M520 600 L520 900 L560 900 L560 600 Z', fill: C.shirtSh, opacity: .4 }, body);
-    el('path', { d: 'M520 600 L520 900 M560 600 L560 900', fill: 'none', stroke: C.earring, 'stroke-width': 2.5 }, body);
-    [620,660,700,740,780,820,860].forEach(y => el('circle', { cx: 540, cy: y, r: 2.6, fill: C.earring }, body));
+    // central embroidered panel (Pashtun style) — short, not full length
+    el('path', { d: 'M520 600 L520 720 L560 720 L560 600 Z', fill: C.shirtSh, opacity: .4 }, body);
+    el('path', { d: 'M520 600 L520 720 M560 600 L560 720', fill: 'none', stroke: C.earring, 'stroke-width': 2.5 }, body);
+    [620,660,700].forEach(y => el('circle', { cx: 540, cy: y, r: 2.6, fill: C.earring }, body));
+    // dupatta (light scarf) draped over the shoulders
+    el('path', { d: 'M400 560 C420 500 480 470 540 460 C600 470 660 500 680 560 L680 620 C640 600 600 580 540 575 C480 580 440 600 400 620 Z', fill: '#f5f0e6', opacity: .55 }, body);
+    el('path', { d: 'M400 620 C380 700 360 780 350 860', fill: 'none', stroke: '#f5f0e6', 'stroke-width': 14, 'stroke-linecap': 'round', opacity: .5 }, body);
+    el('path', { d: 'M400 620 C380 700 360 780 350 860', fill: 'none', stroke: C.earring, 'stroke-width': 2, 'stroke-linecap': 'round', opacity: .7, 'stroke-dasharray': '6 8' }, body);
   } else {
     el('path', { d: 'M494 522 C514 548 566 548 586 522', fill: 'none', stroke: C.teeSh, 'stroke-width': 7, 'stroke-linecap': 'round' }, body);
   }
