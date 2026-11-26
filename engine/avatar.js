@@ -8,13 +8,18 @@
 (function () {
   const R = window.REEL, A = R.avatar; if (!A) return;
   const tl = window.__timelines.reel, NS = 'http://www.w3.org/2000/svg';
-  const FEM = A.look === 'female';   // "character": "maya": the same rig with long hair, lashes, lips and her own palette
+  const SARA = A.name === 'sara';
+  const MAYA = A.look === 'female' && !SARA;
+  const FEM = MAYA || SARA;   // female base rig (lashes, lips, female palette base) for Maya and Sara
+  const MASK = !!A.mask;      // "mask": true in the script covers the nose and mouth
   const C = Object.assign({ skin: '#cf9a74', skinSh: '#b57f5b', skinLo: '#a8724f', ear: '#c48d68', line: '#7a4a31',
     hair: '#1f1714', hairHi: '#3b2c25', fade: '#5a4135', brow: '#241a16',
     shirt: '#4d6b5d', shirtSh: '#3c5549', shirtHi: '#5c7c6d', cuff: '#6f8f80', tee: '#f7f4ee', teeSh: '#e2ddd3', cord: '#efe9dc',
     eye: '#ffffff', iris: '#2a1a12', mouth: '#5a1f1c', tongue: '#e2685f', lip: '#9c5a44', shadow: '#1e1b4b', mark: '#4f46e5' },
-    FEM ? { skin: '#e3ad86', skinSh: '#c99069', skinLo: '#bb805b', ear: '#daa27c', line: '#8a5638', hair: '#2b1a14', hairHi: '#4a3024', brow: '#2b1a14',
-      shirt: '#b8573f', shirtSh: '#964431', shirtHi: '#c96c55', cuff: '#d4826c', mouth: '#7a2633', lip: '#c4566a', iris: '#3a2416', earring: '#e8b54a' } : {},
+    MAYA ? { skin: '#e3ad86', skinSh: '#c99069', skinLo: '#bb805b', ear: '#daa27c', line: '#8a5638', hair: '#2b1a14', hairHi: '#4a3024', brow: '#2b1a14',
+      shirt: '#b8573f', shirtSh: '#964431', shirtHi: '#c96c55', cuff: '#d4826c', mouth: '#7a2633', lip: '#c4566a', iris: '#3a2416', earring: '#e8b54a' } :
+    SARA ? { skin: '#f6d2bc', skinSh: '#d9a98c', skinLo: '#c99478', ear: '#e8c0a4', line: '#8a5a3a', hair: '#3a2418', hairHi: '#6b4530', brow: '#3a2418',
+      shirt: '#b3262f', shirtSh: '#8e1e26', shirtHi: '#d94a4a', cuff: '#e06b6b', mouth: '#8e1e2a', lip: '#d13a45', iris: '#8a6a3f', earring: '#d4a017' } : {},
     A.colors || {});
   const W = 1080, H = 900;
   const pres = document.getElementById('pres'), pin = document.getElementById('presin');
@@ -27,6 +32,7 @@
   const set = (e, a) => { for (const k in a) e.setAttribute(k, a[k]); };
 
   const HEAD = 'M432 300 C432 214 472 186 540 186 C608 186 648 214 648 300 L648 372 C648 440 600 478 540 478 C480 478 432 440 432 372 Z';
+  const SARA_HEAD = 'M440 300 C440 218 478 188 540 188 C602 188 640 218 640 300 C640 342 632 382 614 416 C598 446 572 462 540 462 C508 462 482 446 466 416 C448 382 440 342 440 300 Z';
   const BODY = 'M296 900 C296 770 314 650 350 590 C378 554 440 534 492 522 L588 522 C640 534 702 554 730 590 C766 650 784 770 784 900 Z';
   const HAIR = 'M430 312 C418 250 424 190 462 160 C466 128 504 108 536 122 C560 98 606 104 622 134 C660 144 676 196 660 250 C656 276 652 296 650 312 L640 268 C634 240 618 226 598 232 C578 240 560 222 540 226 C518 232 500 222 480 232 C458 240 446 252 442 272 Z';
 
@@ -44,31 +50,39 @@
   // soft shadow: a blurred copy of the silhouette, just below
   const sh = g(fig, { transform: 'translate(0 22)', filter: 'url(#avsoft)', opacity: R.theme === 'night' ? .5 : .16 });
   el('path', { d: BODY, fill: 'url(#avdots)' }, sh);
-  const shHead = g(sh, {}); el('path', { d: HEAD, fill: 'url(#avdots)' }, shHead); el('path', { d: HAIR, fill: 'url(#avdots)' }, shHead);
+  const shHead = g(sh, {}); el('path', { d: SARA ? SARA_HEAD : HEAD, fill: 'url(#avdots)' }, shHead); if (!SARA) el('path', { d: HAIR, fill: 'url(#avdots)' }, shHead);
   const shArm = [0, 1].map(() => el('path', { d: '', fill: 'none', stroke: 'url(#avdots)', 'stroke-width': 78, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, sh));
   const shHand = [0, 1].map(() => el('circle', { r: 48, fill: 'url(#avdots)' }, sh));
 
   // ---------- Maya's long hair, behind the head and shoulders
   const backHair = g(fig, {});
   if (FEM) el('path', { d: 'M418 300 C404 196 464 132 540 132 C616 132 676 196 662 300 C672 420 700 560 716 660 C660 690 600 676 584 610 L496 610 C480 676 420 690 364 660 C380 560 408 420 418 300 Z', fill: C.hair }, backHair);
-  // ---------- body: open zip hoodie over a white tee
+  // ---------- body: red Pashtun-style dress for Sara, open zip hoodie over a white tee otherwise
   const body = g(fig, {});
-  el('path', { d: 'M446 560 C428 486 462 450 502 446 L578 446 C618 450 652 486 634 560 C600 528 480 528 446 560 Z', fill: C.shirtSh }, body);   // hood behind the neck
+  if (!SARA) el('path', { d: 'M446 560 C428 486 462 450 502 446 L578 446 C618 450 652 486 634 560 C600 528 480 528 446 560 Z', fill: C.shirtSh }, body);   // hood behind the neck
   el('path', { d: BODY, fill: C.shirt }, body);
   const bsh = g(body, { 'clip-path': 'url(#avbodyclip)' });
   el('path', { d: 'M700 540 C760 600 800 760 800 900 L720 900 C730 780 726 640 700 540 Z', fill: C.shirtSh }, bsh);                 // shaded side
   el('path', { d: 'M350 600 C330 680 322 780 322 900 L300 900 L300 600 Z', fill: C.shirtHi, opacity: .6 }, bsh);
-  el('path', { d: 'M492 522 L588 522 C600 640 606 780 606 900 L474 900 C474 780 480 640 492 522 Z', fill: C.tee }, body);
-  el('path', { d: 'M588 522 C600 640 606 780 606 900 L586 900 C586 780 582 640 572 540 Z', fill: C.teeSh }, body);
-  el('path', { d: 'M492 522 C480 640 474 780 474 900', fill: 'none', stroke: C.shirtSh, 'stroke-width': 9 }, body);                 // zip edges
-  el('path', { d: 'M588 522 C600 640 606 780 606 900', fill: 'none', stroke: C.shirtSh, 'stroke-width': 9 }, body);
-  el('path', { d: 'M452 548 C470 530 488 524 500 528 C494 560 484 590 470 610 C456 596 450 572 452 548 Z', fill: C.shirtHi }, body);  // hood lapels
-  el('path', { d: 'M628 548 C610 530 592 524 580 528 C586 560 596 590 610 610 C624 596 630 572 628 548 Z', fill: C.shirtHi }, body);
-  el('path', { d: 'M478 600 C476 650 478 690 482 730 M602 600 C604 646 602 680 598 712', fill: 'none', stroke: C.cord, 'stroke-width': 7, 'stroke-linecap': 'round' }, body);  // drawstrings
-  el('path', { d: 'M482 724 L483 748 M598 706 L597 730', fill: 'none', stroke: C.shirtSh, 'stroke-width': 9, 'stroke-linecap': 'round' }, body);
+  if (!SARA) {
+    el('path', { d: 'M492 522 L588 522 C600 640 606 780 606 900 L474 900 C474 780 480 640 492 522 Z', fill: C.tee }, body);
+    el('path', { d: 'M588 522 C600 640 606 780 606 900 L586 900 C586 780 582 640 572 540 Z', fill: C.teeSh }, body);
+    el('path', { d: 'M492 522 C480 640 474 780 474 900', fill: 'none', stroke: C.shirtSh, 'stroke-width': 9 }, body);                 // zip edges
+    el('path', { d: 'M588 522 C600 640 606 780 606 900', fill: 'none', stroke: C.shirtSh, 'stroke-width': 9 }, body);
+    el('path', { d: 'M452 548 C470 530 488 524 500 528 C494 560 484 590 470 610 C456 596 450 572 452 548 Z', fill: C.shirtHi }, body);  // hood lapels
+    el('path', { d: 'M628 548 C610 530 592 524 580 528 C586 560 596 590 610 610 C624 596 630 572 628 548 Z', fill: C.shirtHi }, body);
+    el('path', { d: 'M478 600 C476 650 478 690 482 730 M602 600 C604 646 602 680 598 712', fill: 'none', stroke: C.cord, 'stroke-width': 7, 'stroke-linecap': 'round' }, body);  // drawstrings
+    el('path', { d: 'M482 724 L483 748 M598 706 L597 730', fill: 'none', stroke: C.shirtSh, 'stroke-width': 9, 'stroke-linecap': 'round' }, body);
+  }
   el('path', { d: 'M500 440 L500 520 C516 544 564 544 580 520 L580 440 Z', fill: C.skinSh }, body);                                 // neck
   el('path', { d: 'M500 470 C520 492 560 492 580 470 L580 500 C560 512 520 512 500 500 Z', fill: C.skinLo, opacity: .7 }, body);
-  el('path', { d: 'M494 522 C514 548 566 548 586 522', fill: 'none', stroke: C.teeSh, 'stroke-width': 7, 'stroke-linecap': 'round' }, body);
+  if (SARA) {   // gold-embroidered neckline band on the dress
+    el('path', { d: 'M474 552 C504 592 576 592 606 552', fill: 'none', stroke: C.earring, 'stroke-width': 5, 'stroke-linecap': 'round' }, body);
+    el('path', { d: 'M486 568 C512 600 568 600 594 568', fill: 'none', stroke: C.earring, 'stroke-width': 3, 'stroke-linecap': 'round', opacity: .8 }, body);
+    [[500,578],[520,588],[540,592],[560,588],[580,578]].forEach(([x,y]) => el('circle', { cx: x, cy: y, r: 2.5, fill: C.earring }, body));
+  } else {
+    el('path', { d: 'M494 522 C514 548 566 548 586 522', fill: 'none', stroke: C.teeSh, 'stroke-width': 7, 'stroke-linecap': 'round' }, body);
+  }
 
   // side locks fall over the shoulders, in front of the hoodie, behind the face
   if (FEM) { el('path', { d: 'M436 292 C410 380 412 500 438 604 C452 650 494 652 502 616 C474 560 466 470 472 380 Z', fill: C.hair }, body);
@@ -76,21 +90,29 @@
     el('path', { d: 'M446 360 C436 440 440 520 456 590 M634 360 C644 440 640 520 624 590', fill: 'none', stroke: C.hairHi, 'stroke-width': 7, 'stroke-linecap': 'round' }, body); }
   // ---------- head
   const head = g(fig, {});
-  const earL = el('ellipse', { cx: 430, cy: 338, rx: 17, ry: 27, fill: C.ear }, head), earR = el('ellipse', { cx: 650, cy: 338, rx: 17, ry: 27, fill: C.ear }, head);
-  el('path', { d: HEAD, fill: C.skin }, head);
+  const earL = el('ellipse', { cx: SARA ? 434 : 430, cy: 338, rx: 17, ry: 27, fill: C.ear }, head), earR = el('ellipse', { cx: SARA ? 646 : 650, cy: 338, rx: 17, ry: 27, fill: C.ear }, head);
+  el('path', { d: SARA ? SARA_HEAD : HEAD, fill: C.skin }, head);
   const hsh = g(head, { 'clip-path': 'url(#avheadclip)' });
-  el('path', { d: 'M660 180 L660 490 L560 490 C624 452 634 400 630 330 C628 270 624 220 600 180 Z', fill: C.skinSh, opacity: .55 }, hsh);   // shaded side of the face
+  el('path', { d: SARA ? 'M640 188 L640 462 L545 462 C600 420 618 360 618 300 C618 255 610 215 582 188 Z' : 'M660 180 L660 490 L560 490 C624 452 634 400 630 330 C628 270 624 220 600 180 Z', fill: C.skinSh, opacity: .55 }, hsh);   // shaded side of the face
   if (!FEM) { el('rect', { x: 428, y: 250, width: 20, height: 76, fill: C.fade, opacity: .75 }, hsh); el('rect', { x: 632, y: 250, width: 20, height: 76, fill: C.fade, opacity: .85 }, hsh); }  // fade at the temples
   const feat = g(head, {});
-  el('ellipse', { cx: 470, cy: 388, rx: 20, ry: 11, fill: 'rgba(230,110,90,.20)' }, feat); el('ellipse', { cx: 606, cy: 388, rx: 20, ry: 11, fill: 'rgba(230,110,90,.20)' }, feat);
+  el('ellipse', { cx: SARA ? 480 : 470, cy: 388, rx: 20, ry: 11, fill: 'rgba(230,110,90,.20)' }, feat); el('ellipse', { cx: SARA ? 600 : 606, cy: 388, rx: 20, ry: 11, fill: 'rgba(230,110,90,.20)' }, feat);
   el('path', { d: 'M544 340 C544 362 554 376 556 384 C552 394 534 394 526 388 C536 388 544 384 544 378 Z', fill: C.skinSh }, feat);   // nose
   const eyes = [[494, 330], [586, 330]].map(([x, y], k) => { const e = g(feat, {});
+    if (SARA) {
+      el('ellipse', { cx: x, cy: y - 12, rx: 29, ry: 15, fill: '#b56a5a', opacity: .18 }, e);
+      el('path', { d: `M${x - 17} ${y - 19} Q${x} ${y - 26} ${x + 17} ${y - 19}`, fill: 'none', stroke: '#a06a5a', 'stroke-width': 2, opacity: .45 }, e);
+    }
     const white = el('ellipse', { cx: x, cy: y, fill: C.eye }, e), inner = g(e, { 'clip-path': `url(#aveye${k})` });
     const pupil = el('circle', { r: 10.5, fill: C.iris }, inner), glint = el('circle', { r: 3.2, fill: '#fff' }, inner);
+    const irisRing = SARA ? el('circle', { r: 12.5, fill: 'none', stroke: '#5a4228', 'stroke-width': 2.5 }, inner) : null;
+    const irisInner = SARA ? el('circle', { r: 8.4, fill: '#a8894f', opacity: .85 }, inner) : null;
+    const pupilDark = SARA ? el('circle', { r: 5.2, fill: '#241a12' }, inner) : null;
+    const glint2 = SARA ? el('circle', { r: 1.6, fill: '#fff', opacity: .85 }, inner) : null;
     const lid = el('rect', { fill: C.skinSh }, inner);
-    const line = el('path', { d: '', fill: 'none', stroke: C.brow, 'stroke-width': 5.5, 'stroke-linecap': 'round' }, e);
-    return { x, y, e, white, pupil, glint, lid, line, clip: document.getElementById('aveyec' + k) }; });
-  const brows = [0, 1].map(() => el('path', { d: '', fill: 'none', stroke: C.brow, 'stroke-width': FEM ? 9 : 13, 'stroke-linecap': 'round' }, feat));
+    const line = el('path', { d: '', fill: 'none', stroke: C.brow, 'stroke-width': SARA ? 7 : 5.5, 'stroke-linecap': 'round' }, e);
+    return { x, y, e, white, pupil, pupilDark, irisRing, irisInner, glint2, glint, lid, line, clip: document.getElementById('aveyec' + k) }; });
+  const brows = [0, 1].map(() => el('path', { d: '', fill: 'none', stroke: C.brow, 'stroke-width': SARA ? 11 : FEM ? 9 : 13, 'stroke-linecap': 'round' }, feat));
   const mouth = g(feat, {});
   const mOpen = el('path', { d: '', fill: C.mouth }, mouth);
   const mIn = g(mouth, { 'clip-path': 'url(#avmouthclip)' });
@@ -99,16 +121,42 @@
   const mLip = el('path', { d: '', fill: 'none', stroke: FEM ? C.lip : C.skinSh, 'stroke-width': FEM ? 7 : 5, 'stroke-linecap': 'round' }, mouth);
   // hair: curly top, drawn over the forehead
   if (FEM) {   // side-swept fringe, lashes, earrings
-    el('path', { d: 'M424 330 C410 240 442 170 506 152 C572 134 640 160 656 236 C662 270 658 304 652 334 C644 290 630 262 610 246 C574 262 520 262 470 236 C452 262 438 294 434 334 Z', fill: C.hair }, head);
+    el('path', { d: SARA ? 'M434 322 C426 246 466 176 540 172 C614 176 654 246 646 322 C630 286 610 268 585 260 C568 254 552 262 540 276 C528 262 512 254 495 260 C470 268 450 286 434 322 Z' : 'M424 330 C410 240 442 170 506 152 C572 134 640 160 656 236 C662 270 658 304 652 334 C644 290 630 262 610 246 C574 262 520 262 470 236 C452 262 438 294 434 334 Z', fill: C.hair }, head);
+    if (SARA) {   // centre part and a little wave in the fringe
+      el('path', { d: 'M540 174 L540 268', fill: 'none', stroke: C.hairHi, 'stroke-width': 3, 'stroke-linecap': 'round', opacity: .7 }, head);
+      el('path', { d: 'M470 200 C458 240 456 280 462 312 M610 200 C622 240 624 280 618 312', fill: 'none', stroke: C.hairHi, 'stroke-width': 5, 'stroke-linecap': 'round', opacity: .6 }, head);
+    }
     el('path', { d: 'M470 236 C520 262 574 262 610 246 C590 214 548 196 506 198 C488 206 476 220 470 236 Z', fill: C.hair }, head);
     el('path', { d: 'M486 186 C530 166 590 172 626 206 M456 230 C470 200 494 182 524 176', fill: 'none', stroke: C.hairHi, 'stroke-width': 8, 'stroke-linecap': 'round' }, head);
-    [[0, 1], [1, -1]].forEach(([k, s_]) => { const x0 = k ? 606 : 474; el('path', { d: `M${x0} 322 L${x0 - 12 * s_} 312 M${x0 + 2 * s_} 316 L${x0 - 6 * s_} 304`, fill: 'none', stroke: C.brow, 'stroke-width': 4.5, 'stroke-linecap': 'round' }, eyes[k].e); });
-    el('circle', { cx: 428, cy: 372, r: 9, fill: C.earring }, head); el('circle', { cx: 652, cy: 372, r: 9, fill: C.earring }, head);
+    [[0, 1], [1, -1]].forEach(([k, s_]) => { const x0 = k ? 606 : 474;
+      el('path', { d: SARA ? `M${x0} 331 Q${x0 - 10 * s_} 324 ${x0 - 19 * s_} 320 M${x0 + 4 * s_} 325 Q${x0 - 6 * s_} 316 ${x0 - 13 * s_} 311 M${x0 + 3 * s_} 318 Q${x0 - 3 * s_} 308 ${x0 - 8 * s_} 302 M${x0 + 2 * s_} 312 Q${x0 - 1 * s_} 302 ${x0 - 3 * s_} 296` : `M${x0} 322 L${x0 - 12 * s_} 312 M${x0 + 2 * s_} 316 L${x0 - 6 * s_} 304`, fill: 'none', stroke: C.brow, 'stroke-width': SARA ? 3.6 : 4.5, 'stroke-linecap': 'round' }, eyes[k].e);
+      if (SARA) el('path', { d: `M${x0} 344 Q${x0 + 10 * s_} 351 ${x0 + 22 * s_} 345`, fill: 'none', stroke: C.brow, 'stroke-width': 2.4, 'stroke-linecap': 'round', opacity: .8 }, eyes[k].e);
+    });
+    if (SARA) [[0, 1], [1, -1]].forEach(([k, s_]) => { const x0 = k ? 606 : 474; el('path', { d: `M${x0} 326 Q${x0 - 10 * s_} 318 ${x0 - 18 * s_} 307`, fill: 'none', stroke: C.brow, 'stroke-width': 3.6, 'stroke-linecap': 'round' }, eyes[k].e); });
+    if (MAYA) { el('circle', { cx: 428, cy: 372, r: 9, fill: C.earring }, head); el('circle', { cx: 652, cy: 372, r: 9, fill: C.earring }, head); }
+    if (SARA) { el('circle', { cx: 434, cy: 370, r: 12, fill: 'none', stroke: C.earring, 'stroke-width': 3.5 }, head); el('circle', { cx: 646, cy: 370, r: 12, fill: 'none', stroke: C.earring, 'stroke-width': 3.5 }, head); }
+  }
+  if (SARA) {   // freckles across the nose/cheeks
+    [[492,326],[508,340],[524,322],[540,336],[556,320],[572,338],[588,324],[498,352],[514,360],[530,348],[546,362],[562,350],[578,360]].forEach(([x,y]) => {
+      el('circle', { cx: x, cy: y, r: 2.2, fill: C.line, opacity: .45 }, head);
+    });
   }
   if (!FEM) el('path', { d: HAIR, fill: C.hair }, head);
   const hh = g(head, { 'clip-path': 'url(#avhairclip)' });
   if (!FEM) el('path', { d: 'M470 176 C482 150 512 140 532 150 M548 140 C572 124 604 134 612 156 M630 170 C648 190 652 220 646 246 M452 214 C462 196 482 190 498 196 M520 190 C540 178 566 180 580 194 M600 200 C614 198 626 208 630 222',
     fill: 'none', stroke: C.hairHi, 'stroke-width': 9, 'stroke-linecap': 'round' }, hh);
+  if (SARA) {   // gold necklace with a small pendant
+    el('path', { d: 'M492 522 C512 540 568 540 588 522', fill: 'none', stroke: C.earring, 'stroke-width': 4, 'stroke-linecap': 'round' }, body);
+    el('circle', { cx: 540, cy: 548, r: 8, fill: C.earring }, body);
+    el('circle', { cx: 540, cy: 548, r: 4, fill: C.shirtHi, opacity: .6 }, body);
+  }
+  if (MASK) {   // black mask with a silver border, over the nose, mouth and chin
+    el('path', { d: 'M466 360 C466 352 478 348 492 350 L588 350 C602 348 614 352 614 360 L614 402 C614 442 590 470 540 470 C490 470 466 442 466 402 Z', fill: '#17171c', stroke: '#c7ccd4', 'stroke-width': 2.5 }, head);
+    el('path', { d: 'M472 386 Q540 396 608 386 M472 408 Q540 418 608 408 M474 430 Q540 440 606 430', fill: 'none', stroke: '#9aa0aa', 'stroke-width': 2, opacity: .9 }, head);
+    el('path', { d: 'M478 356 Q540 348 602 356', fill: 'none', stroke: '#d6dae1', 'stroke-width': 3, 'stroke-linecap': 'round' }, head);
+    el('path', { d: 'M466 368 C452 360 442 352 434 344 M614 368 C628 360 638 352 646 344', fill: 'none', stroke: '#c7ccd4', 'stroke-width': 3, 'stroke-linecap': 'round' }, head);
+    el('path', { d: 'M480 378 Q540 388 600 378', fill: 'none', stroke: '#2a2a32', 'stroke-width': 6, opacity: .55 }, head);
+  }
   // sweat drops + thought bubble
   const drop = 'M0 -16 C-9 0 -11 10 -4 16 C4 22 14 14 10 2 C8 -4 4 -10 0 -16 Z';
   const sweat = [el('path', { d: drop, fill: '#dff0ff', stroke: '#7fa9cf', 'stroke-width': 2.5, transform: 'translate(424 262)', opacity: 0 }, head),
@@ -225,27 +273,31 @@
     set(earL, { rx: 17 + f.turn * 4 }); set(earR, { rx: 17 - f.turn * 4 });
     // brows: raise, angle (browA < 0 angry, > 0 worried), brow2 lifts the right one alone
     [0, 1].forEach(k => { const by = 288 - (f.brow + (k ? f.brow2 : 0)) * 14, a = f.browA * 9, s = k ? 1 : -1, cx = k ? 586 : 494;
-      brows[k].setAttribute('d', `M${cx + s * 30} ${by + 5 - a} Q${cx + s * 6} ${by - 9} ${cx - s * 26} ${by + a + 1}`); });
+      brows[k].setAttribute('d', SARA ? `M${cx + s * 34} ${by + 6 - a} Q${cx + s * 8} ${by - 15} ${cx - s * 30} ${by + a + 2}` : `M${cx + s * 30} ${by + 5 - a} Q${cx + s * 6} ${by - 9} ${cx - s * 26} ${by + a + 1}`); });
     // eyes
-    eyes.forEach((E, k) => { const closed = f.happy > .5 || (k === 1 && f.wink > .5), rx = 17.5 * f.eyes, ry = 15.5 * f.eyes, { x, y } = E;
+    eyes.forEach((E, k) => { const closed = f.happy > .5 || (k === 1 && f.wink > .5), rx = (SARA ? 20 : 17.5) * f.eyes, ry = (SARA ? 18 : 15.5) * f.eyes, { x, y } = E;
       const lid = Math.max(f.lid, f.blink, f.eyes > 1.1 ? 0 : .14);
       set(E.white, { rx, ry, opacity: closed ? 0 : 1 }); set(E.clip, { cx: x, cy: y, rx, ry });
-      set(E.pupil, { cx: x + f.lookX, cy: y + f.lookY + 1, opacity: closed ? 0 : 1 }); set(E.glint, { cx: x + f.lookX - 3.5, cy: y + f.lookY - 3, opacity: closed ? 0 : 1 });
+      set(E.pupil, { cx: x + f.lookX, cy: y + f.lookY + 1, r: SARA ? 12.5 : 10.5, opacity: closed ? 0 : 1 }); set(E.glint, { cx: x + f.lookX - 3.5, cy: y + f.lookY - 3, opacity: closed ? 0 : 1 });
+      if (E.pupilDark) set(E.pupilDark, { cx: x + f.lookX, cy: y + f.lookY + 1, opacity: closed ? 0 : 1 });
+      if (E.irisRing) set(E.irisRing, { cx: x + f.lookX, cy: y + f.lookY + 1, opacity: closed ? 0 : 1 });
+      if (E.irisInner) set(E.irisInner, { cx: x + f.lookX, cy: y + f.lookY + 1, opacity: closed ? 0 : .85 });
+      if (E.glint2) set(E.glint2, { cx: x + f.lookX + 4, cy: y + f.lookY + 5, opacity: closed ? 0 : 1 });
       const cut = y - ry + 2 * ry * lid; set(E.lid, { x: x - rx - 2, y: y - ry - 2, width: rx * 2 + 4, height: Math.max(0, cut - (y - ry) + 2), opacity: closed ? 0 : 1 });
       if (closed) E.line.setAttribute('d', `M${x - 19} ${y + 5} Q${x} ${y - 15} ${x + 19} ${y + 5}`);
       else if (lid < .06) E.line.setAttribute('d', `M${x - rx} ${y - 1} A${rx} ${ry} 0 0 1 ${x + rx} ${y - 1}`);
       else { const q = Math.max(-1, Math.min(1, (cut - y) / ry)), hw = Math.max(rx * Math.sqrt(1 - q * q), rx * .82); E.line.setAttribute('d', `M${x - hw} ${Math.min(cut, y + 6)} Q${x} ${Math.min(cut, y + 6) + (lid > .9 ? 7 : -4 + lid * 6)} ${x + hw} ${Math.min(cut, y + 6)}`); } });
     // mouth
-    const sm = f.smile, y0 = 430, o = Math.max(f.open, f.shock ? .6 : 0, f.grin > .5 ? .5 : 0);
-    if (o < .12) { mOpen.setAttribute('d', ''); mLine.setAttribute('d', `M${508 - sm * 4} ${y0 - sm * 6} Q540 ${y0 + sm * 18} ${572 + sm * 4} ${y0 - sm * 6}`); mLip.setAttribute('d', `M528 ${y0 + 20 + Math.max(sm, 0) * 4} Q540 ${y0 + 24 + Math.max(sm, 0) * 4} 552 ${y0 + 20 + Math.max(sm, 0) * 4}`); set(teeth, { height: 0 }); set(tongue, { opacity: 0 }); }
+    const sm = f.smile, y0 = SARA ? 414 : 430, o = Math.max(f.open, f.shock ? .6 : 0, f.grin > .5 ? .5 : 0);
+    if (o < .12) { const mx = SARA ? 22 : 32, lx = SARA ? 8 : 12; mOpen.setAttribute('d', ''); mLine.setAttribute('d', `M${540 - mx - sm * 4} ${y0 - sm * 6} Q540 ${y0 + sm * 18} ${540 + mx + sm * 4} ${y0 - sm * 6}`); mLip.setAttribute('d', `M${540 - lx} ${y0 + 20 + Math.max(sm, 0) * 4} Q540 ${y0 + 24 + Math.max(sm, 0) * 4} ${540 + lx} ${y0 + 20 + Math.max(sm, 0) * 4}`); set(teeth, { height: 0 }); set(tongue, { opacity: 0 }); }
     else { mLine.setAttribute('d', '');
       let d;
       if (f.shock > .5) { const w = 19 + o * 6, h = 16 + o * 14; d = `M${540 - w} ${y0 + 4} C${540 - w} ${y0 - h} ${540 + w} ${y0 - h} ${540 + w} ${y0 + 4} C${540 + w} ${y0 + h + 14} ${540 - w} ${y0 + h + 14} ${540 - w} ${y0 + 4} Z`;
         set(teeth, { height: 0 }); set(tongue, { cx: 540, cy: y0 + h + 12, rx: w * .7, opacity: 1 }); mLip.setAttribute('d', ''); }
-      else { const sp = Math.max(sm, 0), w = 27 + sp * 9 + f.grin * 7, h = 7 + o * 30, ty = y0 - 9, cy = ty - sp * 5;
+      else { const sp = Math.max(sm, 0), w = (SARA ? 22 : 27) + sp * (SARA ? 7 : 9) + f.grin * 7, h = (SARA ? 6 : 7) + o * 30, ty = y0 - 9, cy = ty - sp * 5;
         d = `M${540 - w} ${cy} Q540 ${ty + 5} ${540 + w} ${cy} Q${540 + w * .82} ${ty + h + 2} 540 ${ty + h + 5} Q${540 - w * .82} ${ty + h + 2} ${540 - w} ${cy} Z`;
         set(teeth, { x: 540 - w * .72, y: ty - 6, width: w * 1.44, height: 16 + (f.grin > .5 ? 3 : 0) }); set(tongue, { cx: 540, cy: ty + h + 6, rx: w * .55, opacity: 1 });
-        mLip.setAttribute('d', `M528 ${ty + h + 15} Q540 ${ty + h + 19} 552 ${ty + h + 15}`); }
+        mLip.setAttribute('d', `M${540 - (SARA ? 8 : 12)} ${ty + h + 15} Q540 ${ty + h + 19} ${540 + (SARA ? 8 : 12)} ${ty + h + 15}`); }
       mOpen.setAttribute('d', d); document.getElementById('avmclip').setAttribute('d', d); }
     sweat.forEach(s => s.setAttribute('opacity', f.sweat)); qb.setAttribute('opacity', f.q);
     fig.setAttribute('transform', `rotate(${f.sway * .7} 540 900)`); }
