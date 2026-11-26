@@ -130,23 +130,11 @@
     el('path', { d: 'M486 186 C530 166 590 172 626 206 M456 230 C470 200 494 182 524 176', fill: 'none', stroke: C.hairHi, 'stroke-width': 8, 'stroke-linecap': 'round' }, head);
     [[0, 1], [1, -1]].forEach(([k, s_]) => { const x0 = k ? 606 : 474;
       if (SARA) {
-        // 6 long curled lashes per eye, fanning outward, thicker at the base
-        const L = [
-          [[x0, 330], [x0 - 10*s_, 318], [x0 - 19*s_, 300]],
-          [[x0 + 4*s_, 326], [x0 - 6*s_, 312], [x0 - 13*s_, 296]],
-          [[x0 + 3*s_, 322], [x0 - 3*s_, 308], [x0 - 8*s_, 292]],
-          [[x0 + 2*s_, 318], [x0 + 1*s_, 304], [x0 - 3*s_, 288]],
-          [[x0 + 1*s_, 314], [x0 + 4*s_, 300], [x0 + 2*s_, 284]],
-          [[x0, 310], [x0 + 5*s_, 296], [x0 + 6*s_, 280]],
-        ];
-        L.forEach(([b, c, t], i) => el('path', { d: `M${b[0]} ${b[1]} Q${c[0]} ${c[1]} ${t[0]} ${t[1]}`, fill: 'none', stroke: C.brow, 'stroke-width': i < 2 ? 5 : 3.6, 'stroke-linecap': 'round' }, eyes[k].e));
-        // lower lashes (short, pointing down)
-        [[x0 - 2*s_, 346], [x0 + 6*s_, 348], [x0 + 14*s_, 346]].forEach(([bx, by]) => el('path', { d: `M${bx} ${by} Q${bx + 2*s_} ${by + 6} ${bx + 4*s_} ${by + 11}`, fill: 'none', stroke: C.brow, 'stroke-width': 2.4, 'stroke-linecap': 'round', opacity: .85 }, eyes[k].e));
+        // lashes removed for now: evaluate the bare eye/iris first
       } else {
         el('path', { d: `M${x0} 322 L${x0 - 12 * s_} 312 M${x0 + 2 * s_} 316 L${x0 - 6 * s_} 304`, fill: 'none', stroke: C.brow, 'stroke-width': 4.5, 'stroke-linecap': 'round' }, eyes[k].e);
       }
     });
-    if (SARA) [[0, 1], [1, -1]].forEach(([k, s_]) => { const x0 = k ? 606 : 474; el('path', { d: `M${x0} 326 Q${x0 - 10 * s_} 318 ${x0 - 18 * s_} 307`, fill: 'none', stroke: C.brow, 'stroke-width': 4, 'stroke-linecap': 'round' }, eyes[k].e); });
     if (MAYA) { el('circle', { cx: 428, cy: 372, r: 9, fill: C.earring }, head); el('circle', { cx: 652, cy: 372, r: 9, fill: C.earring }, head); }
     if (SARA) { el('circle', { cx: 434, cy: 370, r: 12, fill: 'none', stroke: C.earring, 'stroke-width': 3.5 }, head); el('circle', { cx: 646, cy: 370, r: 12, fill: 'none', stroke: C.earring, 'stroke-width': 3.5 }, head); }
   }
