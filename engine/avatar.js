@@ -104,12 +104,14 @@
   el('path', { d: SARA ? 'M640 188 L640 462 L545 462 C600 420 618 360 618 300 C618 255 610 215 582 188 Z' : 'M660 180 L660 490 L560 490 C624 452 634 400 630 330 C628 270 624 220 600 180 Z', fill: C.skinSh, opacity: .55 }, hsh);   // shaded side of the face
   if (!FEM) { el('rect', { x: 428, y: 250, width: 20, height: 76, fill: C.fade, opacity: .75 }, hsh); el('rect', { x: 632, y: 250, width: 20, height: 76, fill: C.fade, opacity: .85 }, hsh); }  // fade at the temples
   const feat = g(head, {});
-  el('ellipse', { cx: SARA ? 480 : 470, cy: 388, rx: 20, ry: 11, fill: 'rgba(230,110,90,.20)' }, feat); el('ellipse', { cx: SARA ? 600 : 606, cy: 388, rx: 20, ry: 11, fill: 'rgba(230,110,90,.20)' }, feat);
+  el('ellipse', { cx: SARA ? 480 : 470, cy: 388, rx: SARA ? 22 : 20, ry: SARA ? 13 : 11, fill: SARA ? 'rgba(235,120,110,.24)' : 'rgba(230,110,90,.20)' }, feat); el('ellipse', { cx: SARA ? 600 : 606, cy: 388, rx: SARA ? 22 : 20, ry: SARA ? 13 : 11, fill: SARA ? 'rgba(235,120,110,.24)' : 'rgba(230,110,90,.20)' }, feat);
+  if (SARA) el('ellipse', { cx: 540, cy: 434, rx: 5, ry: 2, fill: '#fff', opacity: .35 }, feat);   // lip shine
   el('path', { d: 'M544 340 C544 362 554 376 556 384 C552 394 534 394 526 388 C536 388 544 384 544 378 Z', fill: C.skinSh }, feat);   // nose
   const eyes = [[494, 330], [586, 330]].map(([x, y], k) => { const e = g(feat, {});
     if (SARA) {
       el('ellipse', { cx: x, cy: y - 12, rx: 29, ry: 15, fill: '#b56a5a', opacity: .18 }, e);
       el('path', { d: `M${x - 17} ${y - 19} Q${x} ${y - 26} ${x + 17} ${y - 19}`, fill: 'none', stroke: '#a06a5a', 'stroke-width': 2, opacity: .45 }, e);
+      el('ellipse', { cx: x, cy: y + 16, rx: 16, ry: 4, fill: '#fff', opacity: .12 }, e);   // under-eye highlight
     }
     const white = el('ellipse', { cx: x, cy: y, fill: C.eye }, e), inner = g(e, { 'clip-path': `url(#aveye${k})` });
     const pupil = el('circle', { r: 10.5, fill: C.iris }, inner), glint = el('circle', { r: 3.2, fill: '#fff' }, inner);
@@ -117,9 +119,10 @@
     const irisInner = SARA ? el('circle', { r: 8.4, fill: '#a8894f', opacity: .85 }, inner) : null;
     const pupilDark = SARA ? el('circle', { r: 5.2, fill: '#241a12' }, inner) : null;
     const glint2 = SARA ? el('circle', { r: 1.6, fill: '#fff', opacity: .85 }, inner) : null;
+    const glint3 = SARA ? el('circle', { r: 1.0, fill: '#fff', opacity: .7 }, inner) : null;
     const lid = el('rect', { fill: C.skinSh }, inner);
     const line = el('path', { d: '', fill: 'none', stroke: C.brow, 'stroke-width': SARA ? 7 : 5.5, 'stroke-linecap': 'round' }, e);
-    return { x, y, e, white, pupil, pupilDark, irisRing, irisInner, glint2, glint, lid, line, clip: document.getElementById('aveyec' + k) }; });
+    return { x, y, e, white, pupil, pupilDark, irisRing, irisInner, glint2, glint3, glint, lid, line, clip: document.getElementById('aveyec' + k) }; });
   const brows = [0, 1].map(() => el('path', { d: '', fill: 'none', stroke: C.brow, 'stroke-width': SARA ? 11 : FEM ? 9 : 13, 'stroke-linecap': 'round' }, feat));
   const mouth = g(feat, {});
   const mOpen = el('path', { d: '', fill: C.mouth }, mouth);
@@ -133,6 +136,9 @@
     if (SARA) {   // centre part and a little wave in the fringe
       el('path', { d: 'M540 174 L540 268', fill: 'none', stroke: C.hairHi, 'stroke-width': 3, 'stroke-linecap': 'round', opacity: .7 }, head);
       el('path', { d: 'M470 200 C458 240 456 280 462 312 M610 200 C622 240 624 280 618 312', fill: 'none', stroke: C.hairHi, 'stroke-width': 5, 'stroke-linecap': 'round', opacity: .6 }, head);
+      // small gold bow hair accessory
+      el('path', { d: 'M592 186 L584 180 L584 192 Z M592 186 L600 180 L600 192 Z', fill: C.lip, opacity: .9 }, head);
+      el('circle', { cx: 592, cy: 186, r: 2.5, fill: C.earring }, head);
     }
     el('path', { d: 'M470 236 C520 262 574 262 610 246 C590 214 548 196 506 198 C488 206 476 220 470 236 Z', fill: C.hair }, head);
     el('path', { d: 'M486 186 C530 166 590 172 626 206 M456 230 C470 200 494 182 524 176', fill: 'none', stroke: C.hairHi, 'stroke-width': 8, 'stroke-linecap': 'round' }, head);
@@ -149,8 +155,8 @@
     if (SARA) { el('circle', { cx: 434, cy: 370, r: 12, fill: 'none', stroke: C.earring, 'stroke-width': 3.5 }, head); el('circle', { cx: 646, cy: 370, r: 12, fill: 'none', stroke: C.earring, 'stroke-width': 3.5 }, head); }
   }
   if (SARA) {   // freckles across the nose/cheeks
-    [[492,326],[508,340],[524,322],[540,336],[556,320],[572,338],[588,324],[498,352],[514,360],[530,348],[546,362],[562,350],[578,360]].forEach(([x,y]) => {
-      el('circle', { cx: x, cy: y, r: 2.2, fill: C.line, opacity: .45 }, head);
+    [[492,326],[508,340],[524,322],[540,336],[556,320],[572,338],[588,324],[498,352],[514,360],[530,348],[546,362],[562,350],[578,360],[486,332],[502,346],[518,328],[534,352],[550,326],[566,344],[582,330],[598,348]].forEach(([x,y]) => {
+      el('circle', { cx: x, cy: y, r: 1.8, fill: C.line, opacity: .4 }, head);
     });
   }
   if (!FEM) el('path', { d: HAIR, fill: C.hair }, head);
@@ -205,6 +211,7 @@
   const P = {
     talk: [UP(0), UP(1)],
     calm: [REST(0), REST(1)],
+shy: [REST(0), REST(1)],
     smile: [REST(0), REST(1)],
     explain: [{ x: 196, y: 640, r: -62, f: OPEN, sp: 1 }, LOW(1)],
     present: [{ x: 196, y: 640, r: -62, f: OPEN, sp: 1 }, LOW(1)],
@@ -231,7 +238,7 @@
     arms_crossed: [{ x: 640, y: 790, r: 80, f: [.3, .4, .4, .4, .4] }, { x: 440, y: 800, r: -80, f: [.3, .4, .4, .4, .4] }],
   };
   const FACE = {
-    talk: { smile: .6 }, calm: { smile: .45 }, smile: { smile: 1, happy: .0, brow: .2 }, explain: { smile: .65, brow: .25, turn: -.5, lookX: -3 },
+    talk: { smile: .6 }, calm: { smile: .45 }, shy: { smile: .2, brow: .4, lookX: -3, lookY: 4, tilt: 3, lid: .1 }, smile: { smile: 1, happy: .0, brow: .2 }, explain: { smile: .65, brow: .25, turn: -.5, lookX: -3 },
     present: { smile: .7, brow: .3, turn: -.5, lookX: -3 }, both: { smile: .7, brow: .4 }, hi: { smile: 1, grin: 1, brow: .4 }, wave: { smile: 1, grin: 1, brow: .4 },
     point_up: { smile: .7, brow: .6, lookX: -4, lookY: -5, turn: -.4 }, point_side: { smile: .3, brow: .1, brow2: .6, lookX: -7, lid: .3, turn: -1 },
     count: { smile: .55, brow: .3 }, count3: { smile: .55, brow: .3 }, one: { smile: .55, brow: .4 },
@@ -279,28 +286,35 @@
     set(a.thumb, { x: -10, y: -TL, width: 20, height: TL + 12, rx: 10, transform: tt });
     set(a.thumbFill, { x: -7.5, y: -6, width: 15, height: 18, rx: 6, transform: tt }); }
   function drawFace() { const f = S.f;
-    const ht = `rotate(${f.tilt + f.nod * 1.6} 540 500) translate(0 ${f.nod * 5 - f.shrug * 4}) translate(540 500) scale(1.3) translate(-540 -500)`;
+    const ht = `rotate(${f.tilt + (SARA ? 1.5 : 0) + f.nod * 1.6} 540 500) translate(0 ${f.nod * 5 - f.shrug * 4}) translate(540 500) scale(1.3) translate(-540 -500)`;
     head.setAttribute('transform', ht); shHead.setAttribute('transform', ht);
     feat.setAttribute('transform', `translate(${f.turn * 9} 0)`);
     set(earL, { rx: 17 + f.turn * 4 }); set(earR, { rx: 17 - f.turn * 4 });
     // brows: raise, angle (browA < 0 angry, > 0 worried), brow2 lifts the right one alone
-    [0, 1].forEach(k => { const by = 288 - (f.brow + (k ? f.brow2 : 0)) * 14, a = f.browA * 9, s = k ? 1 : -1, cx = k ? 586 : 494;
+    [0, 1].forEach(k => { const by = 288 - ((f.brow + (SARA ? 0.3 : 0)) + (k ? f.brow2 : 0)) * 14, a = f.browA * 9, s = k ? 1 : -1, cx = k ? 586 : 494;
       brows[k].setAttribute('d', SARA ? `M${cx + s * 34} ${by + 6 - a} Q${cx + s * 8} ${by - 15} ${cx - s * 30} ${by + a + 2}` : `M${cx + s * 30} ${by + 5 - a} Q${cx + s * 6} ${by - 9} ${cx - s * 26} ${by + a + 1}`); });
     // eyes
-    eyes.forEach((E, k) => { const closed = f.happy > .5 || (k === 1 && f.wink > .5), rx = (SARA ? 20 : 17.5) * f.eyes, ry = (SARA ? 18 : 15.5) * f.eyes, { x, y } = E;
-      const lid = Math.max(f.lid, f.blink, f.eyes > 1.1 ? 0 : .14);
+    eyes.forEach((E, k) => { const closed = f.happy > .5 || (k === 1 && f.wink > .5), rx = (SARA ? 20 : 17.5) * f.eyes, ry = (SARA ? 18 : 15.5) * f.eyes, { x, y } = E, lookY = f.lookY + (SARA ? -2 : 0);
+      const baseLid = SARA ? 0 : .14;
+      const lid = Math.max(f.lid, f.blink, f.eyes > 1.1 ? 0 : baseLid);
       set(E.white, { rx, ry, opacity: closed ? 0 : 1 }); set(E.clip, { cx: x, cy: y, rx, ry });
-      set(E.pupil, { cx: x + f.lookX, cy: y + f.lookY + 1, r: SARA ? 12.5 : 10.5, opacity: closed ? 0 : 1 }); set(E.glint, { cx: x + f.lookX - 3.5, cy: y + f.lookY - 3, opacity: closed ? 0 : 1 });
-      if (E.pupilDark) set(E.pupilDark, { cx: x + f.lookX, cy: y + f.lookY + 1, opacity: closed ? 0 : 1 });
-      if (E.irisRing) set(E.irisRing, { cx: x + f.lookX, cy: y + f.lookY + 1, opacity: closed ? 0 : 1 });
-      if (E.irisInner) set(E.irisInner, { cx: x + f.lookX, cy: y + f.lookY + 1, opacity: closed ? 0 : .85 });
-      if (E.glint2) set(E.glint2, { cx: x + f.lookX + 4, cy: y + f.lookY + 5, opacity: closed ? 0 : 1 });
+      set(E.pupil, { cx: x + f.lookX, cy: y + lookY + 1, r: SARA ? 14 : 10.5, opacity: closed ? 0 : 1 }); set(E.glint, { cx: x + f.lookX - 3.5, cy: y + lookY - 3, opacity: closed ? 0 : 1 });
+      if (E.pupilDark) set(E.pupilDark, { cx: x + f.lookX, cy: y + lookY + 1, opacity: closed ? 0 : 1 });
+      if (E.irisRing) set(E.irisRing, { cx: x + f.lookX, cy: y + lookY + 1, opacity: closed ? 0 : 1 });
+      if (E.irisInner) set(E.irisInner, { cx: x + f.lookX, cy: y + lookY + 1, opacity: closed ? 0 : .85 });
+      if (E.glint2) set(E.glint2, { cx: x + f.lookX + 4, cy: y + lookY + 5, opacity: closed ? 0 : 1 });
+      if (E.glint3) set(E.glint3, { cx: x + f.lookX - 6, cy: y + lookY - 5, opacity: closed ? 0 : .7 });
       const cut = y - ry + 2 * ry * lid; set(E.lid, { x: x - rx - 2, y: y - ry - 2, width: rx * 2 + 4, height: Math.max(0, cut - (y - ry) + 2), opacity: closed ? 0 : 1 });
       if (closed) E.line.setAttribute('d', `M${x - 19} ${y + 5} Q${x} ${y - 15} ${x + 19} ${y + 5}`);
-      else if (lid < .06) E.line.setAttribute('d', `M${x - rx} ${y - 1} A${rx} ${ry} 0 0 1 ${x + rx} ${y - 1}`);
+      else if (lid < .06) {
+  if (SARA) {
+    if (k === 0) E.line.setAttribute('d', `M${x - rx} ${y - 1.5} A${rx} ${ry} 0 0 1 ${x + rx} ${y + 0.5}`);
+    else E.line.setAttribute('d', `M${x - rx} ${y + 0.5} A${rx} ${ry} 0 0 1 ${x + rx} ${y - 1.5}`);
+  } else E.line.setAttribute('d', `M${x - rx} ${y - 1} A${rx} ${ry} 0 0 1 ${x + rx} ${y - 1}`);
+}
       else { const q = Math.max(-1, Math.min(1, (cut - y) / ry)), hw = Math.max(rx * Math.sqrt(1 - q * q), rx * .82); E.line.setAttribute('d', `M${x - hw} ${Math.min(cut, y + 6)} Q${x} ${Math.min(cut, y + 6) + (lid > .9 ? 7 : -4 + lid * 6)} ${x + hw} ${Math.min(cut, y + 6)}`); } });
     // mouth
-    const sm = f.smile, y0 = SARA ? 414 : 430, o = Math.max(f.open, f.shock ? .6 : 0, f.grin > .5 ? .5 : 0);
+    const sm = f.smile + (SARA ? 0.2 : 0), y0 = SARA ? 414 : 430, o = Math.max(f.open, f.shock ? .6 : 0, f.grin > .5 ? .5 : 0);
     if (o < .12) { const mx = SARA ? 22 : 32, lx = SARA ? 8 : 12; mOpen.setAttribute('d', ''); mLine.setAttribute('d', `M${540 - mx - sm * 4} ${y0 - sm * 6} Q540 ${y0 + sm * 18} ${540 + mx + sm * 4} ${y0 - sm * 6}`); mLip.setAttribute('d', `M${540 - lx} ${y0 + 20 + Math.max(sm, 0) * 4} Q540 ${y0 + 24 + Math.max(sm, 0) * 4} ${540 + lx} ${y0 + 20 + Math.max(sm, 0) * 4}`); set(teeth, { height: 0 }); set(tongue, { opacity: 0 }); }
     else { mLine.setAttribute('d', '');
       let d;
