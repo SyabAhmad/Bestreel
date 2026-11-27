@@ -17,11 +17,32 @@
   const on = (el, t) => { tl.set(el, { attr: { 'data-on': 0 } }, 0); tl.set(el, { attr: { 'data-on': 1 } }, t); };
   // seeded random, so a frame always renders the same
   let seed = 7; const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  st.className = 't-' + (R.theme || 'studio') + ' bg-' + (R.bg || 'grid') + (R.wide ? ' wide' : '') + (R.flashes ? ' flashmode' : '');
+  st.className = 't-' + (R.theme || 'studio') + ' bg-' + (R.bg || 'grid') + (R.wide ? ' wide' : '') + (R.flashes ? ' flashmode' : '') + (R.captionStyle ? ' cap-' + R.captionStyle : '');
   Object.entries(R.colors || {}).forEach(([k, v]) => st.style.setProperty('--' + k, v));   // "colors": {"accent": "#0a7", "bg": "#fff8ee", ...}
   const FW = R.W || 1080, FH = R.H || 1920, CX = R.wide && !R.nopres ? 700 : FW / 2;
   const POP = R.theme !== 'paper';   // studio / night: words pop up; paper: words fade in grey and turn ink
   if (R.nopres) document.getElementById('pres').style.display = 'none';
+  if (R.stage === 'comedy') { // standup stage: wall lights, logo, small audience behind
+    st.classList.add('stage-comedy');
+    st.style.background = 'radial-gradient(ellipse at 50% 20%, #232323 0%, #121212 45%, #070707 100%)';
+    // back wall lights
+    [[18, 180, 180, .10], [50, 140, 220, .08], [82, 180, 180, .10]].forEach(([x, y, s, a]) => {
+      const L = $('div', '', st);
+      L.style.cssText = `position:absolute;left:${x}%;top:${y}px;width:${s}px;height:${s}px;margin-left:${-s / 2}px;border-radius:50%;background:radial-gradient(circle,rgba(255,224,170,${a}) 0%,rgba(255,224,170,0) 70%);z-index:1`;
+    });
+    const logo = $('div', '', st); logo.id = 'stageLogo';
+    logo.style.cssText = 'position:absolute;left:0;right:0;top:120px;text-align:center;font:800 44px/1 AR,sans-serif;letter-spacing:3px;color:rgba(255,255,255,.16);text-transform:uppercase;z-index:1';
+    logo.textContent = R.stage_logo || 'Laugh with Balbala';
+    const spot = $('div', '', st); spot.style.cssText = 'position:absolute;left:50%;top:240px;width:900px;height:900px;margin-left:-450px;border-radius:50%;background:radial-gradient(circle,rgba(255,210,120,.12) 0%,rgba(255,210,120,0) 70%);z-index:1';
+    // small audience from behind (4-5 heads)
+    const aud = $('div', '', st); aud.style.cssText = 'position:absolute;left:0;right:0;bottom:0;height:260px;z-index:2;pointer-events:none';
+    [[16, 74, 62], [32, 92, 78], [50, 84, 70], [68, 96, 82], [84, 72, 60]].forEach(([x, h, w]) => {
+      const p = $('div', '', aud);
+      p.style.cssText = `position:absolute;left:${x}%;bottom:-18px;width:${w}px;height:${h}px;margin-left:${-w / 2}px;border-radius:50% 50% 42% 42%;background:#0a0a0a;box-shadow:0 -6px 0 #151515`;
+      const n = $('div', '', p);
+      n.style.cssText = `position:absolute;left:50%;bottom:${h * 0.68}px;width:${w * 0.42}px;height:${h * 0.28}px;margin-left:${-w * 0.21}px;border-radius:18px;background:#0a0a0a`;
+    });
+  }
 
   // ---- meta row: slug on the left, a running counter on the right
   const meta = document.getElementById('meta'); if (R.meta === false) meta.style.display = 'none'; const slug = $('span', '', meta), cnt = $('span', '', meta); cnt.id = 'cnt'; slug.style.position = 'relative'; cnt.style.position = 'relative';
@@ -71,7 +92,7 @@
     clock: sv('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'),
     env: '<svg viewBox="0 0 120 80"><rect x="2" y="2" width="116" height="76" rx="10" fill="#f8f6f1"/><path d="M8 9 L60 46 L112 9" fill="none" stroke="#c9c4ba" stroke-width="5" stroke-linejoin="round" stroke-linecap="round"/></svg>' };
   const B = {
-    card: (o, e) => { e.className += ' card hs'; e.style.width = (o.w || 820) + 'px'; e.innerHTML = (o.label ? `<div class="lbl">${esc(o.label)}</div>` : '') + (o.icon ? `<div class="cic">${o.svg}</div>` : '') + (o.title ? `<h3>${o.title}</h3>` : '') + (o.text ? `<p>${o.text}</p>` : '') + (o.img ? `<img src="${o.img}" style="width:100%;border-radius:14px;margin-top:18px">` : ''); },
+    card: (o, e) => { e.className += ' icard hs'; e.style.width = (o.w || 820) + 'px'; if (o.h) { e.style.height = o.h + 'px'; e.style.display = 'flex'; e.style.flexDirection = 'column'; e.style.justifyContent = 'center'; e.style.boxSizing = 'border-box'; } e.innerHTML = (o.label ? `<div class="lbl">${esc(o.label)}</div>` : '') + (o.icon ? `<div class="ic">${o.svg}</div>` : '') + (o.title ? `<h3>${o.title}</h3>` : '') + (o.text ? `<p>${o.text}</p>` : '') + (o.img ? `<img src="${o.img}" style="width:100%;border-radius:14px;margin-top:18px">` : ''); },
     // an odometer: digits roll (random, blurred) and settle left to right
     num: (o, e, t) => { e.className += ' num'; if (o.size) e.style.fontSize = o.size + 'px'; const pre = o.prefix ?? '', suf = o.suffix ?? '', d = o.decimals ?? 0, v = { x: o.from ?? 0, p: 0 };
       const span = $('span', 'nv', e); if (o.label) $('small', '', e, esc(o.label));

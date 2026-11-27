@@ -65,7 +65,7 @@ def silent(script, work):
         d = s.get("beats", 4) * spb; sc.append([round(t, 4), round(t + d, 4)]); t += d
     timing = {"duration": round(t, 3), "lines": [], "scenes": sc}
     sf.write(os.path.join(work, "vo.wav"), np.zeros(int(t * SR) + SR, dtype=np.float32), SR)
-    json.dump(timing, open(os.path.join(work, "timing.json"), "w"), indent=1)
+    json.dump(timing, open(os.path.join(work, "timing.json"), "w", encoding="utf-8"), indent=1)
     return timing
 
 def speak(script, work):
@@ -79,7 +79,7 @@ def speak(script, work):
         from . import pronounce
         all_lines = [plain(l) for sc in script["scenes"] for l in sc["lines"]]
         report, guessed = pronounce.audit(all_lines, say_map)
-        open(os.path.join(work, "pronounce.txt"), "w").write(report + "\n")
+        open(os.path.join(work, "pronounce.txt"), "w", encoding="utf-8").write(report + "\n")
         print(f"    pronunciation: {len(all_lines)} lines checked, report in {os.path.join(work, 'pronounce.txt')}")
         if guessed:
             print(f"    WARN guessed pronunciations (check with `beatreel.py say`, then fix in voice.say or core/lexicon.json): {', '.join(guessed)}")
@@ -126,5 +126,5 @@ def speak(script, work):
     vo = vo / (np.abs(vo).max() + 1e-9) * 0.6
     sf.write(os.path.join(work, "vo.wav"), vo.astype(np.float32), SR)
     timing = dict(duration=dur, lines=lines)
-    json.dump(timing, open(os.path.join(work, "timing.json"), "w"), indent=1)
+    json.dump(timing, open(os.path.join(work, "timing.json"), "w", encoding="utf-8"), indent=1)
     return timing

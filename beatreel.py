@@ -122,7 +122,7 @@ def blocks(tm, max_words=7):
 
 
 # code-drawn presenters (engine/avatar.js): name -> look. Add your own here after drawing it in avatar.js.
-LOOKS = {"kai": "male", "maya": "female", "sara": "female"}
+LOOKS = {"kai": "male", "maya": "female", "balbala": "female"}
 FEMALE_LOOKS = {"female"}
 
 
@@ -204,7 +204,8 @@ def build(sc, tm, work):
     lines = blocks(tm, sc.get("caption_words", 7))
     reel = {"dur": dur, "theme": sc.get("theme", "studio"), "counter": sc.get("counter"), "meta": sc.get("meta", False), "beats": beats, "items": items, "lines": lines,
             "cams": cams, "reacts": reacts, "kaiMove": sc.get("presenter_move", True), "fx": sc.get("fx", True), "heroScale": sc.get("hero_scale", 1.3),
-            "bg": sc.get("bg", "grid"), "colors": sc.get("colors", {}), "W": W, "H": H, "wide": W > H}
+            "bg": sc.get("bg", "grid"), "colors": sc.get("colors", {}), "stage": sc.get("stage"), "stage_logo": sc.get("stage_logo"),
+            "captionStyle": sc.get("caption_style"), "W": W, "H": H, "wide": W > H}
     fill_gaps(items, dur)
     if sc.get("caption_y"): reel["capY"] = sc["caption_y"] if isinstance(sc["caption_y"], list) else [sc["caption_y"]] * 2
     fl = []
@@ -224,7 +225,8 @@ def build(sc, tm, work):
         P = sc.get("presenter", {}); wide = W > H
         reel["avatar"] = {"poses": [{"t0": t0, "pose": b.get("pose", "talk")} for b, (t0, _) in zip(sc["beats"], bounds)], "words": words,
                           "top": P.get("y", 470 if wide else 1060), "scale": P.get("scale", .8 if wide else 1), "cx": P.get("x", 1530 if wide else 540),
-                          "look": LOOKS.get(sc.get("character", "kai"), "male"), "name": sc.get("character", "kai"), "mask": bool(sc.get("mask", False)), "colors": sc.get("avatar_colors", {})}
+                          "look": LOOKS.get(sc.get("character", "kai"), "male"), "name": sc.get("character", "kai"), "mask": bool(sc.get("mask", False)),
+                          "colors": sc.get("avatar_colors", {}), "outfit": sc.get("avatar_outfit"), "prop": sc.get("avatar_prop")}
         reel["presenter"] = {"headX": .5, "headY": .31}
     else:
         cdir = char_dir(sc)
