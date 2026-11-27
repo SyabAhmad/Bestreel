@@ -43,7 +43,7 @@
   defs.innerHTML = `
    <pattern id="avdots" width="6" height="6" patternUnits="userSpaceOnUse"><rect width="6" height="6" fill="${C.shadow}"/></pattern>
    <filter id="avsoft" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="12"/></filter>
-   <clipPath id="avheadclip"><path d="${HEAD}"/></clipPath><clipPath id="avbodyclip"><path d="${BODY}"/></clipPath>
+   <clipPath id="avheadclip"><path d="${BALBALA ? BALBALA_HEAD : HEAD}"/></clipPath><clipPath id="avbodyclip"><path d="${BODY}"/></clipPath>
    <clipPath id="avhairclip"><path d="${HAIR}"/></clipPath>
    <clipPath id="aveye0"><ellipse id="aveyec0"/></clipPath><clipPath id="aveye1"><ellipse id="aveyec1"/></clipPath>
    <clipPath id="avmouthclip"><path id="avmclip" d=""/></clipPath>`;
@@ -119,7 +119,7 @@
   const earL = el('ellipse', { cx: BALBALA ? 434 : 430, cy: 338, rx: 17, ry: 27, fill: C.ear }, head), earR = el('ellipse', { cx: BALBALA ? 646 : 650, cy: 338, rx: 17, ry: 27, fill: C.ear }, head);
   el('path', { d: BALBALA ? BALBALA_HEAD : HEAD, fill: C.skin }, head);
   const hsh = g(head, { 'clip-path': 'url(#avheadclip)' });
-  el('path', { d: BALBALA ? 'M640 188 L640 462 L545 462 C600 420 618 360 618 300 C618 255 610 215 582 188 Z' : 'M660 180 L660 490 L560 490 C624 452 634 400 630 330 C628 270 624 220 600 180 Z', fill: C.skinSh, opacity: .55 }, hsh);   // shaded side of the face
+  el('path', { d: BALBALA ? 'M640 188 L640 462 L545 462 C600 420 618 360 618 300 C618 255 610 215 582 188 Z' : 'M660 180 L660 490 L560 490 C624 452 634 400 630 330 C628 270 624 220 600 180 Z', fill: C.skinSh, opacity: BALBALA ? .32 : .55 }, hsh);   // shaded side of the face
   if (!FEM) { el('rect', { x: 428, y: 250, width: 20, height: 76, fill: C.fade, opacity: .75 }, hsh); el('rect', { x: 632, y: 250, width: 20, height: 76, fill: C.fade, opacity: .85 }, hsh); }  // fade at the temples
   const feat = g(head, {});
   el('ellipse', { cx: BALBALA ? 480 : 470, cy: 388, rx: BALBALA ? 22 : 20, ry: BALBALA ? 13 : 11, fill: BALBALA ? 'rgba(235,120,110,.24)' : 'rgba(230,110,90,.20)' }, feat); el('ellipse', { cx: BALBALA ? 600 : 606, cy: 388, rx: BALBALA ? 22 : 20, ry: BALBALA ? 13 : 11, fill: BALBALA ? 'rgba(235,120,110,.24)' : 'rgba(230,110,90,.20)' }, feat);
@@ -141,7 +141,7 @@
     const lid = el('rect', { fill: C.skinSh }, inner);
     const line = el('path', { d: '', fill: 'none', stroke: C.brow, 'stroke-width': BALBALA ? 7 : 5.5, 'stroke-linecap': 'round' }, e);
     return { x, y, e, white, pupil, pupilDark, irisRing, irisInner, glint2, glint3, glint, lid, line, clip: document.getElementById('aveyec' + k) }; });
-  const brows = [0, 1].map(() => el('path', { d: '', fill: 'none', stroke: C.brow, 'stroke-width': BALBALA ? 11 : FEM ? 9 : 13, 'stroke-linecap': 'round' }, feat));
+  const brows = [0, 1].map(() => el('path', { d: '', fill: 'none', stroke: C.brow, 'stroke-width': BALBALA ? 9 : FEM ? 9 : 13, 'stroke-linecap': 'round' }, feat));
   const mouth = g(feat, {});
   const mOpen = el('path', { d: '', fill: C.mouth }, mouth);
   const mIn = g(mouth, { 'clip-path': 'url(#avmouthclip)' });
@@ -155,8 +155,8 @@
       el('path', { d: 'M540 174 L540 268', fill: 'none', stroke: C.hairHi, 'stroke-width': 3, 'stroke-linecap': 'round', opacity: .7 }, head);
       el('path', { d: 'M470 200 C458 240 456 280 462 312 M610 200 C622 240 624 280 618 312', fill: 'none', stroke: C.hairHi, 'stroke-width': 5, 'stroke-linecap': 'round', opacity: .6 }, head);
       // small gold bow hair accessory
-      el('path', { d: 'M592 186 L584 180 L584 192 Z M592 186 L600 180 L600 192 Z', fill: C.lip, opacity: .9 }, head);
-      el('circle', { cx: 592, cy: 186, r: 2.5, fill: C.earring }, head);
+      el('path', { d: 'M592 186 L584 180 L584 192 Z M592 186 L600 180 L600 192 Z', fill: C.zari, opacity: .95 }, head);
+      el('circle', { cx: 592, cy: 186, r: 2.5, fill: C.zariHi }, head);
     }
     el('path', { d: 'M470 236 C520 262 574 262 610 246 C590 214 548 196 506 198 C488 206 476 220 470 236 Z', fill: C.hair }, head);
     el('path', { d: 'M486 186 C530 166 590 172 626 206 M456 230 C470 200 494 182 524 176', fill: 'none', stroke: C.hairHi, 'stroke-width': 8, 'stroke-linecap': 'round' }, head);
@@ -318,7 +318,7 @@ shy: [REST(0), REST(1)],
     set(earL, { rx: 17 + f.turn * 4 }); set(earR, { rx: 17 - f.turn * 4 });
     // brows: raise, angle (browA < 0 angry, > 0 worried), brow2 lifts the right one alone
     [0, 1].forEach(k => { const by = 288 - ((f.brow + (BALBALA ? 0.3 : 0)) + (k ? f.brow2 : 0)) * 14, a = f.browA * 9, s = k ? 1 : -1, cx = k ? 586 : 494;
-      brows[k].setAttribute('d', BALBALA ? `M${cx + s * 34} ${by + 6 - a} Q${cx + s * 8} ${by - 15} ${cx - s * 30} ${by + a + 2}` : `M${cx + s * 30} ${by + 5 - a} Q${cx + s * 6} ${by - 9} ${cx - s * 26} ${by + a + 1}`); });
+      brows[k].setAttribute('d', BALBALA ? `M${cx + s * 34} ${by + 6 - a} Q${cx + s * 8} ${by - 11} ${cx - s * 30} ${by + a + 2}` : `M${cx + s * 30} ${by + 5 - a} Q${cx + s * 6} ${by - 9} ${cx - s * 26} ${by + a + 1}`); });
     // eyes
     eyes.forEach((E, k) => { const closed = f.happy > .5 || (k === 1 && f.wink > .5), rx = (BALBALA ? 20 : 17.5) * f.eyes, ry = (BALBALA ? 18 : 15.5) * f.eyes, { x, y } = E, lookY = f.lookY + (BALBALA ? -2 : 0);
       const baseLid = BALBALA ? 0 : .14;
