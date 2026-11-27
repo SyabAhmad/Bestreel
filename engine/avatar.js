@@ -14,6 +14,7 @@
   const MASK = BALBALA || !!A.mask;      // "mask": true in the script covers the nose and mouth
   const SUIT = A.outfit === 'suit';
   const MIC = A.prop === 'mic';
+  const FULL = !!A.fullBody;
   const C = Object.assign({ skin: '#cf9a74', skinSh: '#b57f5b', skinLo: '#a8724f', ear: '#c48d68', line: '#7a4a31',
     hair: '#1f1714', hairHi: '#3b2c25', fade: '#5a4135', brow: '#241a16',
     shirt: '#4d6b5d', shirtSh: '#3c5549', shirtHi: '#5c7c6d', cuff: '#6f8f80', tee: '#f7f4ee', teeSh: '#e2ddd3', cord: '#efe9dc',
@@ -24,7 +25,7 @@
       shirt: '#0f6b52', shirtSh: '#0a4b3a', shirtHi: '#1a8a6a', cuff: '#3fa88a', mouth: '#8e1e2a', lip: '#d13a45', iris: '#8a6a3f',
       earring: '#e6b94f', dupatta: '#7a1f35', zari: '#e6b94f', zariHi: '#fff0c2' } : {},
     A.colors || {});
-  const W = 1080, H = 900;
+  const W = 1080, H = FULL ? 1320 : 900;
   const pres = document.getElementById('pres'), pin = document.getElementById('presin');
   const SC = A.scale ?? 1;
   pres.style.cssText = `left:${(A.cx ?? 540) - W * SC / 2}px;top:${A.top ?? 1060}px;width:${W * SC}px;height:${H * SC}px`;
@@ -60,6 +61,18 @@
   // ---------- Maya's long hair, behind the head and shoulders
   const backHair = g(fig, {});
   if (FEM) el('path', { d: 'M418 300 C404 196 464 132 540 132 C616 132 676 196 662 300 C672 420 700 560 716 660 C660 690 600 676 584 610 L496 610 C480 676 420 690 364 660 C380 560 408 420 418 300 Z', fill: C.hair }, backHair);
+  if (FULL) {   // full-body preview: trousers and long strapped sandals
+    const legs = g(fig, {});
+    el('path', { d: 'M452 850 L540 850 L536 1210 L468 1210 Z', fill: C.shirtSh }, legs);
+    el('path', { d: 'M544 850 L628 850 L616 1210 L544 1210 Z', fill: C.shirtSh }, legs);
+    el('path', { d: 'M456 1200 L536 1200 L542 1258 L448 1258 Z', fill: '#2a2a33' }, legs);
+    el('path', { d: 'M548 1200 L624 1200 L636 1258 L552 1258 Z', fill: '#2a2a33' }, legs);
+    [[456, 536], [548, 624]].forEach(([a, b]) => {
+      el('path', { d: `M${a} 1258 L${a + 14} 1140 M${b} 1258 L${b - 14} 1140`, fill: 'none', stroke: C.zari, 'stroke-width': 8, 'stroke-linecap': 'round' }, legs);
+      el('path', { d: `M${a + 4} 1220 L${b - 4} 1176 M${a + 4} 1176 L${b - 4} 1136`, fill: 'none', stroke: C.zari, 'stroke-width': 5, 'stroke-linecap': 'round' }, legs);
+      el('path', { d: `M${a} 1248 L${b} 1248`, fill: 'none', stroke: C.zariHi, 'stroke-width': 3, opacity: .85 }, legs);
+    });
+  }
   // ---------- body: red Pashtun-style dress for Sara, open zip hoodie over a white tee otherwise
   const body = g(fig, {});
   if (!BALBALA) el('path', { d: 'M446 560 C428 486 462 450 502 446 L578 446 C618 450 652 486 634 560 C600 528 480 528 446 560 Z', fill: C.shirtSh }, body);   // hood behind the neck

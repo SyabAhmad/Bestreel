@@ -226,7 +226,8 @@ def build(sc, tm, work):
         reel["avatar"] = {"poses": [{"t0": t0, "pose": b.get("pose", "talk")} for b, (t0, _) in zip(sc["beats"], bounds)], "words": words,
                           "top": P.get("y", 470 if wide else 1060), "scale": P.get("scale", .8 if wide else 1), "cx": P.get("x", 1530 if wide else 540),
                           "look": LOOKS.get(sc.get("character", "kai"), "male"), "name": sc.get("character", "kai"), "mask": bool(sc.get("mask", False)),
-                          "colors": sc.get("avatar_colors", {}), "outfit": sc.get("avatar_outfit"), "prop": sc.get("avatar_prop")}
+                          "colors": sc.get("avatar_colors", {}), "outfit": sc.get("avatar_outfit"), "prop": sc.get("avatar_prop"),
+                          "fullBody": sc.get("avatar_full_body", False)}
         reel["presenter"] = {"headX": .5, "headY": .31}
     else:
         cdir = char_dir(sc)
