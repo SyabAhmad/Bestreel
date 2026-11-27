@@ -622,3 +622,6 @@ html, body { margin: 0; background: #000; }
 
 /* no heavy grey square shadow behind scene cards */
 .hs::after { display: none !important; }
+
+/* waveform label must be dark on the light studio cards */
+#stage.t-studio .wl { color: var(--ink); }
