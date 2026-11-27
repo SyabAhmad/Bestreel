@@ -21,7 +21,8 @@
     MAYA ? { skin: '#e3ad86', skinSh: '#c99069', skinLo: '#bb805b', ear: '#daa27c', line: '#8a5638', hair: '#2b1a14', hairHi: '#4a3024', brow: '#2b1a14',
       shirt: '#b8573f', shirtSh: '#964431', shirtHi: '#c96c55', cuff: '#d4826c', mouth: '#7a2633', lip: '#c4566a', iris: '#3a2416', earring: '#e8b54a' } :
     BALBALA ? { skin: '#f6d2bc', skinSh: '#d9a98c', skinLo: '#c99478', ear: '#e8c0a4', line: '#8a5a3a', hair: '#3a2418', hairHi: '#6b4530', brow: '#3a2418',
-      shirt: '#0f6b52', shirtSh: '#0a4b3a', shirtHi: '#1a8a6a', cuff: '#3fa88a', mouth: '#8e1e2a', lip: '#d13a45', iris: '#8a6a3f', earring: '#e6b94f' } : {},
+      shirt: '#0f6b52', shirtSh: '#0a4b3a', shirtHi: '#1a8a6a', cuff: '#3fa88a', mouth: '#8e1e2a', lip: '#d13a45', iris: '#8a6a3f',
+      earring: '#e6b94f', dupatta: '#7a1f35', zari: '#e6b94f', zariHi: '#fff0c2' } : {},
     A.colors || {});
   const W = 1080, H = 900;
   const pres = document.getElementById('pres'), pin = document.getElementById('presin');
@@ -88,23 +89,23 @@
   } else if (BALBALA) {   // rich emerald Pashtun kameez with gold zari embroidery
     // wide embroidered neckline with scalloped lower edge
     el('path', { d: 'M466 544 C496 596 584 596 614 544 C610 572 596 596 580 610 C560 619 520 619 500 610 C484 596 470 572 466 544 Z', fill: C.shirtSh }, body);
-    el('path', { d: 'M472 548 C502 592 578 592 608 548', fill: 'none', stroke: C.earring, 'stroke-width': 7, 'stroke-linecap': 'round' }, body);
-    el('path', { d: 'M482 566 C510 600 570 600 598 566', fill: 'none', stroke: C.earring, 'stroke-width': 3, 'stroke-linecap': 'round', opacity: .9 }, body);
-    [[488,560],[506,576],[524,586],[540,590],[556,586],[574,576],[592,560]].forEach(([x,y]) => el('circle', { cx: x, cy: y, r: 3, fill: '#fff0c2' }, body));
+    el('path', { d: 'M472 548 C502 592 578 592 608 548', fill: 'none', stroke: C.zari, 'stroke-width': 7, 'stroke-linecap': 'round' }, body);
+    el('path', { d: 'M482 566 C510 600 570 600 598 566', fill: 'none', stroke: C.zari, 'stroke-width': 3, 'stroke-linecap': 'round', opacity: .9 }, body);
+    [[488,560],[506,576],[524,586],[540,590],[556,586],[574,576],[592,560]].forEach(([x,y]) => el('circle', { cx: x, cy: y, r: 3, fill: C.zariHi }, body));
     // central embroidered panel (Pashtun style)
     el('path', { d: 'M516 604 L516 762 L564 762 L564 604 Z', fill: C.shirtSh, opacity: .55 }, body);
-    el('path', { d: 'M516 604 L516 762 M564 604 L564 762 M540 612 L540 750', fill: 'none', stroke: C.earring, 'stroke-width': 2.5, opacity: .9 }, body);
-    [630,668,706,744].forEach(y => el('circle', { cx: 540, cy: y, r: 3.2, fill: '#fff0c2' }, body));
+    el('path', { d: 'M516 604 L516 762 M564 604 L564 762 M540 612 L540 750', fill: 'none', stroke: C.zari, 'stroke-width': 2.5, opacity: .9 }, body);
+    [630,668,706,744].forEach(y => el('circle', { cx: 540, cy: y, r: 3.2, fill: C.zariHi }, body));
     // embroidered waist band
-    el('path', { d: 'M402 742 C480 768 600 768 678 742', fill: 'none', stroke: C.earring, 'stroke-width': 6, opacity: .85 }, body);
-    el('path', { d: 'M406 754 C482 780 598 780 674 754', fill: 'none', stroke: '#fff0c2', 'stroke-width': 2, opacity: .85 }, body);
+    el('path', { d: 'M402 742 C480 768 600 768 678 742', fill: 'none', stroke: C.zari, 'stroke-width': 6, opacity: .85 }, body);
+    el('path', { d: 'M406 754 C482 780 598 780 674 754', fill: 'none', stroke: C.zariHi, 'stroke-width': 2, opacity: .85 }, body);
     // tiny gold sequins scattered on the kameez
-    [[470,640],[610,640],[452,700],[628,700],[482,796],[598,796]].forEach(([x,y]) => el('circle', { cx: x, cy: y, r: 2.4, fill: C.earring, opacity: .8 }, body));
+    [[470,640],[610,640],[452,700],[628,700],[482,796],[598,796]].forEach(([x,y]) => el('circle', { cx: x, cy: y, r: 2.4, fill: C.zari, opacity: .8 }, body));
     // rich burgundy dupatta with gold border, draped over the shoulders
-    el('path', { d: 'M388 556 C414 492 478 462 540 452 C602 462 666 492 692 556 L692 632 C650 606 600 586 540 580 C480 586 430 606 388 632 Z', fill: '#7a1f35', opacity: .92 }, body);
-    el('path', { d: 'M392 628 C372 706 358 786 350 866', fill: 'none', stroke: '#7a1f35', 'stroke-width': 18, 'stroke-linecap': 'round', opacity: .92 }, body);
-    el('path', { d: 'M392 628 C372 706 358 786 350 866', fill: 'none', stroke: C.earring, 'stroke-width': 4, 'stroke-linecap': 'round', opacity: .9, 'stroke-dasharray': '10 12' }, body);
-    el('path', { d: 'M400 560 C430 506 486 480 540 470 C594 480 650 506 680 560', fill: 'none', stroke: C.earring, 'stroke-width': 5, opacity: .9 }, body);
+    el('path', { d: 'M388 556 C414 492 478 462 540 452 C602 462 666 492 692 556 L692 632 C650 606 600 586 540 580 C480 586 430 606 388 632 Z', fill: C.dupatta, opacity: .92 }, body);
+    el('path', { d: 'M392 628 C372 706 358 786 350 866', fill: 'none', stroke: C.dupatta, 'stroke-width': 18, 'stroke-linecap': 'round', opacity: .92 }, body);
+    el('path', { d: 'M392 628 C372 706 358 786 350 866', fill: 'none', stroke: C.zari, 'stroke-width': 4, 'stroke-linecap': 'round', opacity: .9, 'stroke-dasharray': '10 12' }, body);
+    el('path', { d: 'M400 560 C430 506 486 480 540 470 C594 480 650 506 680 560', fill: 'none', stroke: C.zari, 'stroke-width': 5, opacity: .9 }, body);
   } else {
     el('path', { d: 'M494 522 C514 548 566 548 586 522', fill: 'none', stroke: C.teeSh, 'stroke-width': 7, 'stroke-linecap': 'round' }, body);
   }
